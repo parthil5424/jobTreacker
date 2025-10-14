@@ -42,7 +42,6 @@ function UserForm({ onSuccess, onCancel, editData }) {
       if (res.status == 200) onSuccess();
       else {
         const data = await res.json();
-        console.log(data.message);
       }
     } catch (err) {
       console.error("Something Went Wrong", err);

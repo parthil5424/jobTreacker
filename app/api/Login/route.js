@@ -51,8 +51,6 @@ export async function POST(req, { params }) {
       { expiresIn: "7d" }
     );
 
-    console.log("token", token);
-
     return NextResponse.json(
       {
         message: "Login SuccessFully",

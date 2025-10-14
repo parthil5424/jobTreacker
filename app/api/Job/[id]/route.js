@@ -74,3 +74,41 @@ export async function PUT(req, { params }) {
     );
   }
 }
+
+export async function DELETE(req, { params }) {
+  try {
+    const { id } = await params;
+    if (!id) {
+      return NextResponse.json(
+        {
+          message: "Could Not Find Record",
+        },
+        {
+          status: 404,
+        }
+      );
+    }
+    console.log("id", id);
+    const res = await Job.findByIdAndDelete(id);
+    return NextResponse.json(
+      {
+        messsgae: "Deleted Successfully",
+        data: res,
+      },
+      {
+        status: 200,
+      }
+    );
+  } catch (err) {
+    console.log("error", err);
+    return NextResponse.json(
+      {
+        message: err.message || "",
+        data: [],
+      },
+      {
+        status: 500,
+      }
+    );
+  }
+}

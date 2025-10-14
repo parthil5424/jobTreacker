@@ -1,10 +1,11 @@
 import dbConnect from "@/lib/dbConnect";
 import User from "@/lib/Models/User";
 import { NextResponse } from "next/server";
+import mongoose from "mongoose";
 import bcrypt from "bcryptjs";
 export async function GET(req) {
   try {
-    dbConnect();
+    await dbConnect();
     const users = await User.find({});
     return NextResponse.json({
       status: 200,

@@ -8,13 +8,18 @@ await fs.mkdir(uploadDir, { recursive: true });
 
 export async function GET(req, { params }) {
   try {
-    // const p = await params;
-    // console.log("params", p);
-    // console.log("Role", id);
     dbConnect();
     const { searchParams } = new URL(req.url);
     const role = searchParams.get("role");
-    const res = await Application.find({});
+    const user = searchParams.get("user");
+    let res = [];
+    if (role != "Admin") {
+      res = await Application.find({
+        userId: user,
+      });
+    } else {
+      res = await Application.find({});
+    }
     return NextResponse.json({
       status: 200,
       data: res,

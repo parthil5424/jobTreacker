@@ -139,27 +139,11 @@ function Application() {
     <div>
       <div className="relative overflow-x-auto shadow-md sm:rounded-lg">
         {isOpen ? (
-          <div className="fixed inset-0 z-50 flex items-center justify-center overflow-x-hidden overflow-y-auto outline-none focus:outline-none">
-            {/* Backdrop */}
-            <div
-              className="fixed inset-0 bg-black opacity-50"
-              onClick={onCancel}
-            ></div>
-
-            {/* Modal Content */}
-            <div className="relative w-full max-w-2xl mx-auto my-6 z-50">
-              <div className="relative flex flex-col w-full bg-white border-0 rounded-lg shadow-lg outline-none focus:outline-none dark:bg-gray-800">
-                {/* Header */}
-                <div className="flex items-start justify-between p-5 border-b border-solid rounded-t border-gray-300 dark:border-gray-700">
-                  <ApplicationForm
-                    onSuccess={onSuccess}
-                    onCancel={onCancel}
-                    editData={editData}
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
+          <ApplicationForm
+            onSuccess={onSuccess}
+            onCancel={onCancel}
+            editData={editData}
+          />
         ) : (
           <div>
             <header>
