@@ -2,18 +2,37 @@
 import React, { useEffect, useState } from "react";
 import JobForm from "@/Components/Forms/JobForm";
 import ApplicationForm from "@/Components/Forms/ApplicationForm";
+import ApplicationList from "@/Components/Modals/ApplicationList";
 function Job() {
-  const [isOpen, setisOpen] = useState(false);
-  const [showAppForm, setShowAppForm] = useState(false);
+  const [userData, setUserData] = useState({});
+
   const [jobs, setJobs] = useState(null);
   const [editData, setEditData] = useState(null);
-  const [userData, setUserData] = useState(null);
   const [selectedJobId, setSelectedJobId] = useState(null);
-  const [userApplication, setUserApplication] = useState(null);
+  const [userApplication, setUserApplication] = useState([]);
+  const [applicationData, setApplicationData] = useState(null);
 
-  const addJob = () => {
-    setisOpen(true);
-  };
+  const [isOpen, setisOpen] = useState(false);
+  const [showAppForm, setShowAppForm] = useState(false);
+  const [showAppList, setShowAppList] = useState(false);
+
+  useEffect(() => {
+    try {
+      let user = JSON.parse(localStorage.getItem("user"));
+      console.log("User", user);
+      setUserData(user);
+      fetchData();
+      fetchApplication();
+    } catch (err) {
+      console.error("error", err);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (userData?.role) {
+      fetchApplication();
+    }
+  }, [userData]);
 
   const fetchData = async () => {
     try {
@@ -22,7 +41,7 @@ function Job() {
       if (data.status == 200) {
         setJobs(data.data);
       } else {
-        console.log("Failed tom fetch data");
+        console.error("Failed tom fetch data");
       }
     } catch (err) {
       console.error("Failed to fetch Job", err);
@@ -31,21 +50,46 @@ function Job() {
 
   const fetchApplication = async () => {
     try {
-      const res = await fetch(
-        `/Api/Application?role=${userData.role.name}&user=${userData.id}`
-      );
-      if (res.status == 200) {
-        const data = await res.json();
-        setUserApplication(data.data);
+      if (userData?.role) {
+        const res = await fetch(
+          `/api/Application?role=${userData.role.name}&user=${userData.id}`
+        );
+        if (res.status == 200) {
+          const data = await res.json();
+          setUserApplication(data.data);
+        } else {
+          const { message } = await res.json();
+          console.log("Failed to Fetch Application", message);
+        }
       }
     } catch (err) {
       console.error("Error", err);
     }
   };
 
+  const addJob = () => {
+    setisOpen(true);
+  };
+
   const handleEdit = (elem) => {
     setEditData(elem);
     setisOpen(true);
+  };
+
+  const onSuccess = () => {
+    setEditData(null);
+    fetchData();
+    setisOpen(false);
+  };
+
+  const onCancel = () => {
+    setisOpen(false);
+    setEditData(null);
+  };
+
+  const closeApplicationList = () => {
+    setShowAppList(false);
+    setApplicationData(null);
   };
 
   const handleDelete = async (id) => {
@@ -64,15 +108,42 @@ function Job() {
     }
   };
 
-  const onSuccess = () => {
-    setEditData(null);
-    fetchData();
-    setisOpen(false);
+  const handleApply = async (elem) => {
+    try {
+      setSelectedJobId(elem._id);
+      setShowAppForm(true);
+    } catch (err) {
+      console.err("err", err);
+    }
   };
 
-  const onCancel = () => {
-    setisOpen(false);
-    setEditData(null);
+  const handleViewApplication = async (elem) => {
+    try {
+      if (userApplication.length > 0) {
+        console.log(elem);
+        let applicationData = userApplication.filter(
+          (app) => app.jobId == elem._id
+        );
+        if (applicationData.length <= 0) {
+          console.log("No Application Found");
+          return;
+        }
+        setApplicationData({
+          jobName: elem.name,
+          createdDate: elem.createdAt,
+          applications: applicationData,
+        });
+
+        setShowAppList(true);
+      }
+    } catch (err) {
+      console.error("Error", err);
+    }
+  };
+
+  const closeAppForm = () => {
+    setSelectedJobId(null);
+    setShowAppForm(false);
   };
 
   function formatDate(isoDate) {
@@ -84,35 +155,17 @@ function Job() {
     return `${day}-${month}-${year}`;
   }
 
-  const handleApply = async (elem) => {
-    try {
-      setSelectedJobId(elem._id);
-      setShowAppForm(true);
-    } catch (err) {
-      console.err("err", err);
-    }
-  };
-
-  const closeAppForm = () => {
-    setSelectedJobId(null);
-    setShowAppForm(false);
-  };
-
   const appFormSuccess = () => {
     try {
       setSelectedJobId(null);
       setShowAppForm(false);
+      fetchData();
+      fetchApplication();
     } catch (err) {
       console.error("Error Occurred");
     }
   };
 
-  useEffect(() => {
-    let user = JSON.parse(localStorage.getItem("user"));
-    setUserData(user);
-    fetchData();
-    fetchApplication();
-  }, []);
   return (
     <div>
       {isOpen ? (
@@ -125,6 +178,15 @@ function Job() {
         <div className="relative overflow-x-auto shadow-md sm:rounded-lg">
           <div>
             <header>
+              {/* {userData && userData.role.name != "Applicant" && (
+                <button
+                  type="button"
+                  className="text-white bg-green-700 hover:bg-green-800 focus:outline-none focus:ring-4 focus:ring-green-300 font-medium rounded-full text-sm px-5 py-2.5 text-center me-2 mb-2 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800 cursor-pointer"
+                  onClick={addJob}
+                >
+                  Add Job
+                </button>
+              )} */}
               <button
                 type="button"
                 className="text-white bg-green-700 hover:bg-green-800 focus:outline-none focus:ring-4 focus:ring-green-300 font-medium rounded-full text-sm px-5 py-2.5 text-center me-2 mb-2 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800 cursor-pointer"
@@ -184,31 +246,56 @@ function Job() {
                         {
                           <div className="flex gap-3">
                             {userData.role.name == "Applicant" ? (
-                              <button
-                                type="button"
-                                className="flex-1 px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-green-700 focus:ring-4 focus:outline-none focus:ring-red-300 dark:bg-green-500 dark:hover:green-red-600 dark:focus:green-red-800 cursor-pointer"
-                                onClick={() => {
-                                  handleApply(elem);
-                                }}
-                              >
-                                Apply
-                              </button>
+                              (() => {
+                                const isApplied = userApplication?.find(
+                                  (app) => app.jobId === elem._id
+                                );
+                                return (
+                                  <button
+                                    type="button"
+                                    disabled={isApplied}
+                                    className={`flex-1 px-4 py-2 text-sm font-medium rounded-lg focus:ring-4 focus:outline-none transition-colors ${
+                                      isApplied
+                                        ? "bg-gray-400 text-gray-700 cursor-not-allowed opacity-60"
+                                        : "bg-red-600 text-white hover:bg-red-700 focus:ring-red-300 cursor-pointer"
+                                    }`}
+                                    onClick={() => {
+                                      handleApply(elem);
+                                    }}
+                                  >
+                                    {isApplied ? "Applied ✓" : "Apply"}
+                                  </button>
+                                );
+                              })()
                             ) : (
                               <>
-                                <button
-                                  type="button"
-                                  onClick={() => handleEdit(elem)}
-                                  className="flex-1 px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-500 dark:hover:bg-blue-600 dark:focus:ring-blue-800"
-                                >
-                                  Edit
-                                </button>
-                                <button
-                                  type="button"
-                                  onClick={() => handleDelete(elem?._id)}
-                                  className="flex-1 px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700 focus:ring-4 focus:outline-none focus:ring-red-300 dark:bg-red-500 dark:hover:bg-red-600 dark:focus:ring-red-800"
-                                >
-                                  Delete
-                                </button>
+                                {elem.createdBy == userData.id && (
+                                  <>
+                                    <button
+                                      type="button"
+                                      onClick={() => handleEdit(elem)}
+                                      className="flex-1 px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-500 dark:hover:bg-blue-600 dark:focus:ring-blue-800 cursor-pointer"
+                                    >
+                                      Edit
+                                    </button>
+                                    <button
+                                      type="button"
+                                      onClick={() => handleDelete(elem?._id)}
+                                      className="flex-1 px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700 focus:ring-4 focus:outline-none focus:ring-red-300 dark:bg-red-500 dark:hover:bg-red-600 dark:focus:ring-red-800 cursor-pointer"
+                                    >
+                                      Delete
+                                    </button>
+                                    <button
+                                      type="button"
+                                      onClick={() =>
+                                        handleViewApplication(elem)
+                                      }
+                                      className="flex-1 px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-500 dark:hover:bg-blue-600 dark:focus:ring-blue-800 cursor-pointer"
+                                    >
+                                      View Applications
+                                    </button>
+                                  </>
+                                )}
                               </>
                             )}
                           </div>
@@ -234,6 +321,13 @@ function Job() {
               onSuccess={appFormSuccess}
             />
           )}
+          {
+            <ApplicationList
+              open={showAppList}
+              onClose={closeApplicationList}
+              data={applicationData}
+            />
+          }
         </div>
       )}
     </div>

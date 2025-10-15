@@ -3,6 +3,7 @@ import Application from "@/lib/Models/Application";
 import { NextResponse } from "next/server";
 import path from "path";
 import fs from "fs/promises";
+import Job from "@/lib/Models/Job";
 const uploadDir = path.join(process.cwd(), "public/uploads");
 await fs.mkdir(uploadDir, { recursive: true });
 
@@ -12,13 +13,21 @@ export async function GET(req, { params }) {
     const { searchParams } = new URL(req.url);
     const role = searchParams.get("role");
     const user = searchParams.get("user");
+    console.log("Role", role);
+    console.log("user", user);
     let res = [];
-    if (role != "Admin") {
+    if (role == "Admin") {
+      res = await Application.find({}).populate("userId", "name email");
+    } else if (role == "Employer") {
+      const jobIds = await Job.find({ createdBy: user }).distinct("_id");
+      console.log("jobIds", jobIds);
+      res = await Application.find({
+        jobId: { $in: jobIds },
+      }).populate("userId", "name email");
+    } else {
       res = await Application.find({
         userId: user,
-      });
-    } else {
-      res = await Application.find({});
+      }).populate("userId", "name email");
     }
     return NextResponse.json({
       status: 200,
