@@ -113,6 +113,7 @@ function Login() {
                         } rounded-xl focus:ring-2 focus:border-transparent outline-none transition-all`}
                       />
                       <button
+                        type="button"
                         className="absolute inset-y-0 right-0 pr-3 flex items-center  cursor-pointer focus-visible:outline-none"
                         onClick={() => setShowPassword(!showPassword)}
                       >
