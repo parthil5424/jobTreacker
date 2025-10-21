@@ -8,6 +8,7 @@ import Role from "@/lib/Models/Role";
 export async function POST(req, { params }) {
   try {
     dbConnect();
+    console.log("Login");
     const { email, password } = await req.json();
     const isExist = await User.findOne({ email: email });
     if (!isExist) {
@@ -39,6 +40,7 @@ export async function POST(req, { params }) {
       name: isExist.name,
       email: isExist.email,
       role: { id: isExist.role, name: roleName },
+      resume: isExist.resume,
     };
 
     const token = jwt.sign(

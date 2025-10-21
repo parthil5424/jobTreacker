@@ -24,10 +24,13 @@ const ApplicationList = ({ open, onClose, data }) => {
       console.log("userId", userId);
       const res = await fetch(`/api/Application/${id}`, {
         method: "PATCH",
-        body: {
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
           status: status,
           userId: userId,
-        },
+        }),
       });
       if (res.status == 200) {
         console.log("Status Updated SuccessFully");
@@ -36,7 +39,6 @@ const ApplicationList = ({ open, onClose, data }) => {
       console.error("Error", err);
     }
   };
-  console.log("data", data);
   if (!open) return null;
   return (
     <>
@@ -93,6 +95,7 @@ const ApplicationList = ({ open, onClose, data }) => {
                       <div>
                         <h4 className="text-lg font-semibold text-gray-800">
                           {app?.userId.name}
+                          {console.log("App", app)}
                         </h4>
                         <p className="text-sm text-gray-500">
                           Applied on {formatDate(app?.createdAt)}
@@ -120,7 +123,7 @@ const ApplicationList = ({ open, onClose, data }) => {
                             handleStatusChange(
                               app._id,
                               e.target.value,
-                              app?.userId.id
+                              app?.userId._id
                             )
                           }
                           className="border border-gray-300 rounded-md text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-orange-400"

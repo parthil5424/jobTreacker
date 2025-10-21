@@ -2,7 +2,9 @@
 import { useState, useEffect } from "react";
 import { Formik, Field, Form, ErrorMessage } from "formik";
 import * as yup from "yup";
-function UserForm({ onSuccess, onCancel, editData }) {
+import { useAuthStore } from "@/Store/useAuthStore";
+function JobForm({ onSuccess, onCancel, editData }) {
+  const { user } = useAuthStore();
   const [image, setImage] = useState(editData?.image || null);
   const validationSchema = yup.object({
     name: yup.string().min(2).max(20).required("Please Enter Email"),
@@ -27,14 +29,13 @@ function UserForm({ onSuccess, onCancel, editData }) {
         url += editData._id;
         method = "PUT";
       }
-      let createdBy = JSON.parse(localStorage.getItem("user"));
       formData.append("name", values.name);
       formData.append("description", values.description);
       formData.append("isActive", values.isActive);
       if (image) {
         formData.append("image", image);
       }
-      formData.append("createdBy", createdBy.id);
+      formData.append("createdBy", user.id);
       const res = await fetch(url, {
         method: method,
         body: formData,
@@ -150,4 +151,4 @@ function UserForm({ onSuccess, onCancel, editData }) {
   );
 }
 
-export default UserForm;
+export default JobForm;

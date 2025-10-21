@@ -5,9 +5,10 @@ import { NextResponse } from "next/server";
 export async function PATCH(req, { params }) {
   try {
     const { id } = await params;
-    console.log("id", id);
-    const data = await req.body;
-    console.log("Data", data);
+    const data = await req.json();
+    const res = await Application.findByIdAndUpdate(id, {
+      status: data.status,
+    });
     return NextResponse.json(
       {
         message: "Status Updated Successfully",

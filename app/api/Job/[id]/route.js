@@ -34,7 +34,6 @@ export async function PUT(req, { params }) {
     }
     const { name, description, isActive, createdBy } = fields;
     if (image != undefined && image != null) {
-      const { name, description, isActive } = fields;
       const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
       const fileName = `${uniqueSuffix}-${image.name}`;
       const filePath = path.join(uploadDir, fileName);
@@ -42,8 +41,6 @@ export async function PUT(req, { params }) {
       await fs.writeFile(filePath, fileBuffer);
       imageurl = `/uploads/${fileName}`;
     }
-
-    console.log("createdBy", createdBy);
 
     const res = await Job.findByIdAndUpdate(id, {
       name: name,
@@ -94,6 +91,7 @@ export async function DELETE(req, { params }) {
       {
         messsgae: "Deleted Successfully",
         data: res,
+        status: 200,
       },
       {
         status: 200,

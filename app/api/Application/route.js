@@ -1,5 +1,6 @@
 import dbConnect from "@/lib/dbConnect";
 import Application from "@/lib/Models/Application";
+import User from "@/lib/Models/User";
 import { NextResponse } from "next/server";
 import path from "path";
 import fs from "fs/promises";

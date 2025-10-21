@@ -3,9 +3,10 @@ import React, { useEffect, useState } from "react";
 import JobForm from "@/Components/Forms/JobForm";
 import ApplicationForm from "@/Components/Forms/ApplicationForm";
 import ApplicationList from "@/Components/Modals/ApplicationList";
-function Job() {
-  const [userData, setUserData] = useState({});
+import { useAuthStore } from "@/Store/useAuthStore";
 
+function Job() {
+  const { user, isAuthenticated } = useAuthStore();
   const [jobs, setJobs] = useState(null);
   const [editData, setEditData] = useState(null);
   const [selectedJobId, setSelectedJobId] = useState(null);
@@ -18,9 +19,6 @@ function Job() {
 
   useEffect(() => {
     try {
-      let user = JSON.parse(localStorage.getItem("user"));
-      console.log("User", user);
-      setUserData(user);
       fetchData();
       fetchApplication();
     } catch (err) {
@@ -29,10 +27,10 @@ function Job() {
   }, []);
 
   useEffect(() => {
-    if (userData?.role) {
+    if (user?.role) {
       fetchApplication();
     }
-  }, [userData]);
+  }, [user]);
 
   const fetchData = async () => {
     try {
@@ -50,9 +48,9 @@ function Job() {
 
   const fetchApplication = async () => {
     try {
-      if (userData?.role) {
+      if (user?.role) {
         const res = await fetch(
-          `/api/Application?role=${userData.role.name}&user=${userData.id}`
+          `/api/Application?role=${user.role.name}&user=${user.id}`
         );
         if (res.status == 200) {
           const data = await res.json();
@@ -97,8 +95,7 @@ function Job() {
       const res = await fetch(`/api/Job/${id}`, {
         method: "DELETE",
       });
-      const data = await res.json();
-      if (data.status == 200) {
+      if (res.status == 200) {
         fetchData();
       } else {
         console.log("Failed to delete role");
@@ -175,61 +172,70 @@ function Job() {
           onSuccess={onSuccess}
         />
       ) : (
-        <div className="relative overflow-x-auto shadow-md sm:rounded-lg">
+        <div className="relative overflow-hidden shadow-lg sm:rounded-2xl bg-gradient-to-br from-slate-50/80 to-white/80 dark:from-gray-900/80 dark:to-gray-800/80 backdrop-blur-sm p-4">
           <div>
-            <header>
-              {/* {userData && userData.role.name != "Applicant" && (
+            <header className="flex justify-between items-center mb-8">
+              <h2 className="text-2xl font-bold text-gray-900 dark:text-white tracking-tight">
+                Job Openings
+              </h2>
+              {user?.role?.name === "Employer" && (
                 <button
-                  type="button"
-                  className="text-white bg-green-700 hover:bg-green-800 focus:outline-none focus:ring-4 focus:ring-green-300 font-medium rounded-full text-sm px-5 py-2.5 text-center me-2 mb-2 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800 cursor-pointer"
                   onClick={addJob}
+                  className="group inline-flex items-center gap-2 px-6 py-3 rounded-full bg-gradient-to-r from-emerald-500 to-emerald-600 text-white font-semibold shadow-lg hover:shadow-xl hover:from-emerald-600 hover:to-emerald-700 transform hover:scale-105 transition-all duration-300"
                 >
+                  <svg
+                    className="w-4 h-4"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M12 4v16m8-8H4"
+                    />
+                  </svg>
                   Add Job
                 </button>
-              )} */}
-              <button
-                type="button"
-                className="text-white bg-green-700 hover:bg-green-800 focus:outline-none focus:ring-4 focus:ring-green-300 font-medium rounded-full text-sm px-5 py-2.5 text-center me-2 mb-2 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800 cursor-pointer"
-                onClick={addJob}
-              >
-                Add Job
-              </button>
+              )}
             </header>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {jobs && jobs.length > 0 ? (
                 jobs.map((elem, index) => {
                   return (
-                    <div
+                    <article
+                      className="group relative bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl shadow-sm hover:shadow-2xl border border-white/20 dark:border-gray-700/50 transition-all duration-300 overflow-hidden hover:-translate-y-2"
                       key={index}
-                      className="bg-white border border-gray-200 rounded-lg shadow-md dark:bg-gray-800 dark:border-gray-700 hover:shadow-lg transition-shadow duration-300"
                     >
                       {/* Image Section */}
                       {elem.image && (
-                        <div className="relative h-48 w-full overflow-hidden rounded-t-lg">
+                        <div className="relative h-48 overflow-hidden bg-gradient-to-br from-blue-50/50 to-purple-50/50 dark:from-gray-800/50 dark:to-gray-700/50">
                           <img
                             src={elem.image}
                             alt={elem.name}
-                            className="w-full h-full object-cover"
+                            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-200"
                           />
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
                         </div>
                       )}
 
                       {/* Content Section */}
                       <div className="p-5">
                         {/* Title */}
-                        <h5 className="mb-2 text-xl font-bold tracking-tight text-gray-900 dark:text-white">
+                        <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-3 line-clamp-1 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
                           {elem.name}
-                        </h5>
+                        </h3>
 
-                        {/* Description */}
-                        <p className="mb-3 text-sm text-gray-700 dark:text-gray-400 line-clamp-3">
+                        {/* Description - Elegant Truncation */}
+                        <p className="text-gray-600 dark:text-gray-300 mb-5 text-sm leading-relaxed line-clamp-3">
                           {elem.description}
                         </p>
 
-                        {/* Created Date */}
-                        <div className="flex items-center mb-4 text-xs text-gray-500 dark:text-gray-400">
+                        {/* Date - Minimal Icon */}
+                        <div className="flex items-center mb-6 text-xs text-gray-500 dark:text-gray-400">
                           <svg
-                            className="w-4 h-4 mr-1"
+                            className="w-3.5 h-3.5 mr-1.5"
                             fill="currentColor"
                             viewBox="0 0 20 20"
                           >
@@ -245,43 +251,46 @@ function Job() {
                         {/* Action Buttons */}
                         {
                           <div className="flex gap-3">
-                            {userData.role.name == "Applicant" ? (
+                            {user && user?.role?.name == "Applicant" ? (
                               (() => {
                                 const isApplied = userApplication?.find(
                                   (app) => app.jobId === elem._id
                                 );
                                 return (
-                                  <button
-                                    type="button"
-                                    disabled={isApplied}
-                                    className={`flex-1 px-4 py-2 text-sm font-medium rounded-lg focus:ring-4 focus:outline-none transition-colors ${
-                                      isApplied
-                                        ? "bg-gray-400 text-gray-700 cursor-not-allowed opacity-60"
-                                        : "bg-red-600 text-white hover:bg-red-700 focus:ring-red-300 cursor-pointer"
-                                    }`}
-                                    onClick={() => {
-                                      handleApply(elem);
-                                    }}
-                                  >
-                                    {isApplied ? "Applied ✓" : "Apply"}
-                                  </button>
+                                  <>
+                                    {isApplied && <p>{isApplied?.status}</p>}
+                                    <button
+                                      type="button"
+                                      disabled={isApplied}
+                                      className={`flex-1 py-2.5 px-4 rounded-full text-sm font-semibold transition-all duration-200 ${
+                                        isApplied
+                                          ? "bg-gray-100 text-gray-500 dark:bg-gray-700 dark:text-gray-400 cursor-not-allowed"
+                                          : "bg-gradient-to-r from-red-500 to-red-600 text-white hover:from-red-600 hover:to-red-700 shadow-md hover:shadow-lg transform hover:scale-105 cursor-pointer"
+                                      }`}
+                                      onClick={() => {
+                                        handleApply(elem);
+                                      }}
+                                    >
+                                      {isApplied ? "Applied ✓" : "Apply"}
+                                    </button>
+                                  </>
                                 );
                               })()
                             ) : (
                               <>
-                                {elem.createdBy == userData.id && (
+                                {user && elem.createdBy == user.id && (
                                   <>
                                     <button
                                       type="button"
                                       onClick={() => handleEdit(elem)}
-                                      className="flex-1 px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-500 dark:hover:bg-blue-600 dark:focus:ring-blue-800 cursor-pointer"
+                                      className="px-4 py-2.5 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-full text-sm font-semibold shadow-md hover:shadow-lg hover:from-blue-600 hover:to-blue-700 transform hover:scale-105 transition-all duration-200 cursor-pointer"
                                     >
                                       Edit
                                     </button>
                                     <button
                                       type="button"
                                       onClick={() => handleDelete(elem?._id)}
-                                      className="flex-1 px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700 focus:ring-4 focus:outline-none focus:ring-red-300 dark:bg-red-500 dark:hover:bg-red-600 dark:focus:ring-red-800 cursor-pointer"
+                                      className="px-4 py-2.5 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-full text-sm font-semibold shadow-md hover:shadow-lg hover:from-red-600 hover:to-red-700 transform hover:scale-105 transition-all duration-200 cursor-pointer"
                                     >
                                       Delete
                                     </button>
@@ -290,7 +299,7 @@ function Job() {
                                       onClick={() =>
                                         handleViewApplication(elem)
                                       }
-                                      className="flex-1 px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-500 dark:hover:bg-blue-600 dark:focus:ring-blue-800 cursor-pointer"
+                                      className="px-4 py-2.5 bg-gradient-to-r from-purple-500 to-purple-600 text-white rounded-full text-sm font-semibold shadow-md hover:shadow-lg hover:from-purple-600 hover:to-purple-700 transform hover:scale-105 transition-all duration-200 cursor-pointer"
                                     >
                                       View Applications
                                     </button>
@@ -301,7 +310,7 @@ function Job() {
                           </div>
                         }
                       </div>
-                    </div>
+                    </article>
                   );
                 })
               ) : (
@@ -315,7 +324,7 @@ function Job() {
           </div>
           {showAppForm && (
             <ApplicationForm
-              userData={userData}
+              userData={user}
               onCancel={closeAppForm}
               jobId={selectedJobId}
               onSuccess={appFormSuccess}
