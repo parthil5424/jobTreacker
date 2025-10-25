@@ -9,7 +9,8 @@ export async function POST(req, { params }) {
   try {
     dbConnect();
     console.log("Login");
-    const { email, password } = await req.json();
+    const { email, password, provider } = await req.json();
+
     const isExist = await User.findOne({ email: email });
     if (!isExist) {
       return NextResponse.json(
@@ -20,20 +21,23 @@ export async function POST(req, { params }) {
         { status: 404 }
       );
     }
-    const CompPass = await bcrypt.compare(password, isExist.password);
-    if (!CompPass) {
-      return NextResponse.json(
-        {
-          message: "Invalid UserName or Password",
-          data: [],
-        },
-        { status: 404 }
-      );
+    if (provider !== "google") {
+      const CompPass = await bcrypt.compare(password, isExist.password);
+      if (!CompPass) {
+        return NextResponse.json(
+          {
+            message: "Invalid UserName or Password",
+            data: [],
+          },
+          { status: 404 }
+        );
+      }
     }
 
     const roleName = (await Role.findById(isExist.role).select("name").lean())
       ?.name;
-    console.log("RoleName", roleName);
+
+    console.log("isExist", isExist);
 
     const userData = {
       id: isExist._id,
@@ -41,6 +45,8 @@ export async function POST(req, { params }) {
       email: isExist.email,
       role: { id: isExist.role, name: roleName },
       resume: isExist.resume,
+      companyDetails: isExist?.companyDetails ?? null,
+      resume: isExist?.resume ?? null,
     };
 
     const token = jwt.sign(

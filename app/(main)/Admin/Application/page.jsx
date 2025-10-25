@@ -1,15 +1,26 @@
 "use client";
 import React, { useEffect, useState } from "react";
-
+import {
+  FileText,
+  Briefcase,
+  User,
+  Edit,
+  Trash2,
+  Eye,
+  Search,
+  Plus,
+} from "lucide-react";
 import ApplicationForm from "@/Components/Forms/ApplicationForm";
 import { useRouter } from "next/navigation";
+import { useAuthStore } from "@/Store/useAuthStore";
 function Application() {
-  const router = useRouter();
   const [isOpen, setisOpen] = useState(false);
   const [jobs, setJobs] = useState([]);
   const [applications, setApplications] = useState(null);
   const [users, setUsers] = useState([]);
   const [editData, setEditData] = useState(null);
+  const router = useRouter();
+  const { user } = useAuthStore();
 
   const statusOptions = ["applied", "under review", "shortlisted", "rejected"];
 
@@ -19,15 +30,14 @@ function Application() {
 
   const fetchData = async () => {
     try {
-      let localdata = JSON.parse(localStorage.getItem("user"));
-      if (localdata == null || localdata == undefined) {
+      if (user == null || user == undefined) {
         router.push("/Login");
         return;
-      } else if (localdata.role.name != "Admin") {
+      } else if (user.role.name != "Admin") {
         router.push("/Login");
         return;
       }
-      let role = localdata.role.name;
+      let role = user.role.name;
 
       const res = await fetch(`/api/Application?role=${role}`);
       const data = await res.json();
@@ -87,31 +97,6 @@ function Application() {
     }
   };
 
-  const fetchAllUsers = async () => {
-    try {
-      const res = await fetch("/api/User");
-      const data = await res.json();
-      if (data.data.length > 0) {
-        setUsers(data.data);
-      }
-    } catch (err) {
-      console.error("Error Occurred", err);
-    }
-  };
-
-  const getUserName = (id) => {
-    try {
-      if (users.length > 0) {
-        const name = users.find((user) => user._id === id)?.name;
-        return name;
-      }
-      return "";
-    } catch (err) {
-      console.error("error", err);
-      return "";
-    }
-  };
-
   const getJobName = (id) => {
     try {
       if (jobs.length > 0) {
@@ -130,124 +115,243 @@ function Application() {
   };
 
   useEffect(() => {
-    fetchAllJobs();
-    fetchAllUsers();
-    fetchData();
-  }, []);
+    if (user) {
+      fetchAllJobs();
+      fetchData();
+    }
+  }, [user]);
+
+  const statusColors = {
+    applied: "bg-blue-100 text-blue-700",
+    "under review": "bg-yellow-100 text-yellow-700",
+    shortlisted: "bg-green-100 text-green-700",
+    rejected: "bg-red-100 text-red-700",
+    withdrawn: "bg-gray-100 text-gray-700",
+  };
+
+  const getStatusColor = (status) => {
+    return statusColors[status];
+  };
+
+  if (isOpen && ApplicationForm) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 p-6">
+        <ApplicationForm
+          onSuccess={onSuccess}
+          onCancel={onCancel}
+          editData={editData}
+        />
+      </div>
+    );
+  }
 
   return (
-    <div>
-      <div className="relative overflow-x-auto shadow-md sm:rounded-lg">
-        {isOpen ? (
-          <ApplicationForm
-            onSuccess={onSuccess}
-            onCancel={onCancel}
-            editData={editData}
-          />
-        ) : (
-          <div>
-            <header>
-              <button
-                type="button"
-                className="text-white bg-green-700 hover:bg-green-800 focus:outline-none focus:ring-4 focus:ring-green-300 font-medium rounded-full text-sm px-5 py-2.5 text-center me-2 mb-2 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800 cursor-pointer"
-                onClick={addAplication}
-              >
-                Add Application
-              </button>
-            </header>
-            <table className="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
-              <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Header */}
+        <div className="mb-8">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center">
+                <FileText className="w-6 h-6 text-white" />
+              </div>
+              <div>
+                <h1 className="text-3xl font-bold text-gray-900">
+                  Applications Management
+                </h1>
+                <p className="text-gray-600 text-sm">
+                  Track and manage all job applications
+                </p>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        {/* Table Card */}
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+          {/* Table */}
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead className="bg-gradient-to-r from-gray-50 to-gray-100">
                 <tr>
-                  <th scope="col" className="px-6 py-3">
+                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
                     Job Name
                   </th>
-                  <th scope="col" className="px-6 py-3">
+                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
                     Applicant Name
                   </th>
-                  <th scope="col" className="px-6 py-3">
+                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
                     Resume
                   </th>
-                  <th scope="col" className="px-6 py-3">
+                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
                     Status
                   </th>
-                  <th scope="col" className="px-6 py-3">
-                    Action
+                  <th className="px-6 py-4 text-right text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                    Actions
                   </th>
                 </tr>
               </thead>
-              <tbody>
+              <tbody className="divide-y divide-gray-100">
                 {applications && applications.length > 0 ? (
-                  applications.map((elem, index) => {
-                    return (
-                      <tr
-                        className="bg-white border-b dark:bg-gray-800 dark:border-gray-700 border-gray-200"
-                        key={index}
-                      >
-                        <th
-                          scope="row"
-                          className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white"
-                        >
-                          {getJobName(elem.jobId)}
-                        </th>
-                        <th
-                          scope="row"
-                          className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white"
-                        >
-                          {getUserName(elem.userId)}
-                        </th>
-                        <td className="px-6 py-4">{elem.uploadedResume}</td>
-                        <td className="px-6 py-4">
-                          <select onChange={handleStatusChange}>
-                            {statusOptions.length > 0 &&
-                              statusOptions.map((op, index) => {
-                                return (
-                                  <option
-                                    value={op}
-                                    defaultValue={
-                                      op == elem.status ? true : false
-                                    }
-                                    key={index}
-                                  >
-                                    {op}
-                                  </option>
-                                );
-                              })}
-                          </select>
-                        </td>
-                        <td className="px-6 py-4 text-right">
-                          <div className="flex justify-evenly">
-                            <button
-                              type="button"
-                              className="font-medium text-blue-600 dark:text-blue-500 hover:underline cursor-pointer"
-                              onClick={() => {
-                                handleEdit(elem);
-                              }}
-                            >
-                              Edit
-                            </button>
-                            <button
-                              type="button"
-                              className="font-medium text-blue-600 dark:text-blue-500 hover:underline cursor-pointer"
-                              onClick={() => {
-                                handleDelete(elem?._id);
-                              }}
-                            >
-                              Delete
-                            </button>
+                  applications.map((elem, index) => (
+                    <tr
+                      key={index}
+                      className="hover:bg-gray-50 transition-colors duration-150"
+                    >
+                      {/* Job Name */}
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-indigo-500 rounded-full flex items-center justify-center flex-shrink-0">
+                            <Briefcase className="w-5 h-5 text-white" />
                           </div>
-                        </td>
-                      </tr>
-                    );
-                  })
+                          <div>
+                            <div className="font-semibold text-gray-900">
+                              {getJobName(elem.jobId)}
+                            </div>
+                          </div>
+                        </div>
+                      </td>
+
+                      {/* Applicant Name */}
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-full flex items-center justify-center flex-shrink-0">
+                            <span className="text-white font-semibold text-sm">
+                              {elem.userId.name.charAt(0).toUpperCase()}
+                            </span>
+                          </div>
+                          <div>
+                            <div className="font-semibold text-gray-900">
+                              {elem.userId.name}
+                            </div>
+                          </div>
+                        </div>
+                      </td>
+
+                      {/* Resume */}
+                      <td className="px-6 py-4">
+                        <a
+                          href={elem.uploadedResume}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1.5 text-sm text-blue-600 hover:text-blue-700 font-medium hover:underline"
+                        >
+                          <Eye className="w-4 h-4" />
+                          View Resume
+                        </a>
+                      </td>
+
+                      {/* Status */}
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <select
+                          onChange={handleStatusChange}
+                          defaultValue={elem.status}
+                          className="px-3 py-2 border border-gray-300 rounded-lg text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white hover:border-gray-400 transition-colors cursor-pointer"
+                        >
+                          {statusOptions.length > 0 &&
+                            statusOptions.map((op, idx) => (
+                              <option value={op} key={idx}>
+                                {op.charAt(0).toUpperCase() + op.slice(1)}
+                              </option>
+                            ))}
+                        </select>
+                      </td>
+
+                      {/* Actions */}
+                      <td className="px-6 py-4 whitespace-nowrap text-right">
+                        <div className="flex justify-end gap-2">
+                          {/* <button
+                            type="button"
+                            onClick={() => handleEdit(elem)}
+                            className="inline-flex items-center gap-1.5 px-4 py-2 bg-blue-500 text-white rounded-lg text-sm font-medium hover:bg-blue-600 hover:scale-105 transition-all duration-200"
+                          >
+                            <Edit className="w-4 h-4" />
+                            Edit
+                          </button> */}
+                          <button
+                            type="button"
+                            onClick={() => handleDelete(elem._id)}
+                            className="inline-flex items-center gap-1.5 px-4 py-2 bg-red-500 text-white rounded-lg text-sm font-medium hover:bg-red-600 hover:scale-105 transition-all duration-200"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                            Delete
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))
                 ) : (
                   <tr>
-                    <td colSpan={3}>No Data Found</td>
+                    <td colSpan={5} className="px-6 py-16 text-center">
+                      <div className="flex flex-col items-center justify-center">
+                        <div className="w-16 h-16 bg-gradient-to-br from-gray-100 to-gray-200 rounded-full flex items-center justify-center mb-4">
+                          <FileText className="w-8 h-8 text-gray-400" />
+                        </div>
+                        <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                          No Applications Found
+                        </h3>
+                        <p className="text-gray-500 mb-4">
+                          "Start by adding your first application"
+                        </p>
+                        <button
+                          onClick={addAplication}
+                          className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl font-semibold hover:shadow-lg transition-all"
+                        >
+                          <Plus className="w-5 h-5" />
+                          Add First Application
+                        </button>
+                      </div>
+                    </td>
                   </tr>
                 )}
               </tbody>
-            </table>{" "}
+            </table>
           </div>
-        )}
+
+          {/* Footer Stats */}
+          {applications && applications.length > 0 && (
+            <div className="px-6 py-4 bg-gray-50 border-t border-gray-200">
+              <div className="flex items-center justify-between text-sm">
+                <span className="text-gray-600">
+                  Total Applications:{" "}
+                  <span className="font-semibold text-gray-900">
+                    {applications.length}
+                  </span>
+                </span>
+                <div className="flex gap-4">
+                  <span className="text-gray-600">
+                    Shortlisted:{" "}
+                    <span className="font-semibold text-green-600">
+                      {
+                        applications.filter((a) => a.status === "shortlisted")
+                          .length
+                      }
+                    </span>
+                  </span>
+                  <span className="text-gray-600">
+                    Under Review:{" "}
+                    <span className="font-semibold text-yellow-600">
+                      {
+                        applications.filter((a) => a.status === "under review")
+                          .length
+                      }
+                    </span>
+                  </span>
+                  <span className="text-gray-600">
+                    Rejected:{" "}
+                    <span className="font-semibold text-red-600">
+                      {
+                        applications.filter((a) => a.status === "rejected")
+                          .length
+                      }
+                    </span>
+                  </span>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

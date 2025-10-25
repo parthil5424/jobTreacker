@@ -4,6 +4,7 @@ import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import path from "path";
 import fs from "fs/promises";
+import Role from "@/lib/Models/Role";
 const uploadDir = path.join(process.cwd(), "public/uploads");
 
 export async function PUT(req, { params }) {
@@ -23,7 +24,6 @@ export async function PUT(req, { params }) {
     let image = "",
       imageurl = "";
     const data = await req.formData();
-    const hashedPassword = await bcrypt.hash(data.get("password"), 10);
     let fields = {};
     for (const [key, value] of data.entries()) {
       if (key === "resume" && value instanceof File) {
@@ -44,17 +44,40 @@ export async function PUT(req, { params }) {
       await fs.writeFile(filePath, fileBuffer);
       imageurl = `/uploads/${fileName}`;
     }
-    const res = await User.findByIdAndUpdate(id, {
-      name: name,
+
+    let userObj = {
       email: email,
-      isActive: isActive,
+      name: name,
       role: role,
-      password: hashedPassword,
+      isActive: isActive,
       ...(imageurl !== "" && { resume: imageurl }),
-    });
+    };
+    if (data.get("companyname")) {
+      userObj.companyDetails = {
+        name: data.get("companyname"),
+        registeredYear: data.get("year"),
+        size: data.get("size"),
+        address: data.get("address"),
+        landMark: data.get("landmark"),
+      };
+    }
+    let res = await User.findByIdAndUpdate(
+      id,
+      { ...userObj }, //
+      { new: true }
+    );
+
+    const roleName = await Role.findById(res.role).select("name _id");
+    const updatedUserObj = {
+      ...userObj,
+      role: {
+        id: roleName._id,
+        name: roleName.name,
+      },
+    };
     return NextResponse.json(
       {
-        data: res,
+        data: updatedUserObj,
         message: "user Updated Successfully",
       },
       {

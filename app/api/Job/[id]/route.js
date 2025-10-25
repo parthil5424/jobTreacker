@@ -32,7 +32,15 @@ export async function PUT(req, { params }) {
         fields[key] = value;
       }
     }
-    const { name, description, isActive, createdBy } = fields;
+    const {
+      name,
+      description,
+      isActive,
+      createdBy,
+      salaryMin,
+      salaryMax,
+      experience,
+    } = fields;
     if (image != undefined && image != null) {
       const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
       const fileName = `${uniqueSuffix}-${image.name}`;
@@ -48,6 +56,9 @@ export async function PUT(req, { params }) {
       isActive: isActive,
       image: imageurl,
       createdBy: createdBy,
+      salaryMin: salaryMin,
+      salaryMax: salaryMax,
+      experience: experience,
     });
     return NextResponse.json(
       {
@@ -60,6 +71,7 @@ export async function PUT(req, { params }) {
       }
     );
   } catch (err) {
+    console.log(err);
     return NextResponse.json(
       {
         message: err.message || "Failed to Update",

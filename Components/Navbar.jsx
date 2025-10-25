@@ -1,32 +1,41 @@
 "use client";
 import { useAuthStore } from "@/Store/useAuthStore";
+import { Briefcase } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useState, useRef, useEffect } from "react";
 
 export default function Navbar() {
   const { logout, user } = useAuthStore();
+  const [open, setOpen] = useState(false);
+  const menuRef = useRef(null);
   const router = useRouter();
   const handleLogout = () => {
     logout();
     router.push("/Login");
   };
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (menuRef.current && !menuRef.current.contains(event.target)) {
+        setOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
   if (!user) return <div>Loading</div>;
   return (
     <nav className="bg-white border-gray-200 dark:bg-gray-900">
       <div className="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-4">
-        <a
-          href="https://flowbite.com/"
+        <Link
+          href="/"
           className="flex items-center space-x-3 rtl:space-x-reverse"
         >
-          <img
-            src="https://flowbite.com/docs/images/logo.svg"
-            className="h-8"
-            alt="Flowbite Logo"
-          />
+          <Briefcase className="w-6 h-6 text-white" />
           <span className="self-center text-2xl font-semibold whitespace-nowrap dark:text-white">
             JobTracker
           </span>
-        </a>
+        </Link>
         <button
           data-collapse-toggle="navbar-default"
           type="button"
@@ -112,20 +121,46 @@ export default function Navbar() {
                 Logout
               </button>
             </li>
-            <li>
-              <div className="flex items-center gap-3 bg-gray-50 rounded-full px-4 py-2 border border-gray-200">
-                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white text-sm font-bold">
-                  {user && user.name.charAt(0).toUpperCase()}
+            <li className="relative" ref={menuRef}>
+              <button
+                onClick={() => setOpen((prev) => !prev)}
+                className="cursor-pointer"
+              >
+                <div className="flex items-center gap-3 bg-gray-50 rounded-full px-4 py-2 border border-gray-200">
+                  {/* Avatar Button */}
+                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white text-sm font-bold focus:outline-none hover:opacity-90">
+                    {user?.name?.charAt(0).toUpperCase()}
+                  </div>
+
+                  {/* Username  */}
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm font-semibold text-gray-900">
+                      {user?.name}
+                    </span>
+                  </div>
                 </div>
-                <div className="flex items-center gap-2">
-                  <span className="text-sm font-semibold text-gray-900">
-                    {user && user.name}
-                  </span>
-                  <span className="px-2 py-0.5 bg-indigo-100 text-indigo-700 text-xs font-medium rounded">
-                    {user && user.role.name}
-                  </span>
+              </button>
+
+              {/* Dropdown */}
+              {open && (
+                <div className="absolute right-0 mt-2 w-44 bg-white border border-gray-200 rounded-lg shadow-lg z-50">
+                  <div className="px-4 py-2 text-sm text-gray-600 border-b border-gray-100">
+                    Role:{" "}
+                    <span className="font-semibold text-gray-900">
+                      {user?.role?.name}
+                    </span>
+                  </div>
+                  <Link
+                    href="/Merchant/UserProfile"
+                    className="block px-4 py-2 text-sm text-gray-700 hover:bg-indigo-50 transition"
+                    onClick={() => {
+                      setOpen(false);
+                    }}
+                  >
+                    View Profile
+                  </Link>
                 </div>
-              </div>
+              )}
             </li>
           </ul>
         </div>

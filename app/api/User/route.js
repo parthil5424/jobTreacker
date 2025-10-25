@@ -5,6 +5,7 @@ import mongoose from "mongoose";
 import bcrypt from "bcryptjs";
 import path from "path";
 import fs from "fs/promises";
+import Role from "@/lib/Models/Role";
 const uploadDir = path.join(process.cwd(), "public/uploads");
 export async function GET(req) {
   try {

@@ -32,13 +32,21 @@ export default async function middleWare(request) {
     }
   }
 
-  const publicRoutes = ["/Login", "/SignUp", "/", "/login", "/signup"];
+  const publicRoutes = [
+    "/Login",
+    "/SignUp",
+    "/",
+    "/login",
+    "/signup",
+    "/google/complete",
+  ];
 
   if (publicRoutes.includes(pathname)) {
     return NextResponse.next();
   }
 
   if (!token) {
+    console.log("Not Token Called", pathname);
     return NextResponse.redirect(new URL("/Login", request.url));
   }
 

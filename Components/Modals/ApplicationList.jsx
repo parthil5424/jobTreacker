@@ -1,4 +1,5 @@
 "use client";
+import { X, FileText, Calendar, User, Eye } from "lucide-react";
 
 const ApplicationList = ({ open, onClose, data }) => {
   function formatDate(isoDate) {
@@ -16,6 +17,14 @@ const ApplicationList = ({ open, onClose, data }) => {
     "rejected",
     "withdrawn",
   ];
+
+  const statusColors = {
+    applied: "bg-blue-100 text-blue-700",
+    "under review": "bg-yellow-100 text-yellow-700",
+    shortlisted: "bg-green-100 text-green-700",
+    rejected: "bg-red-100 text-red-700",
+    withdrawn: "bg-gray-100 text-gray-700",
+  };
 
   const handleStatusChange = async (id, status, userId) => {
     try {
@@ -42,108 +51,176 @@ const ApplicationList = ({ open, onClose, data }) => {
   if (!open) return null;
   return (
     <>
+      {/* Backdrop */}
       <div
-        className="fixed inset-0 bg-black/30 backdrop-blur-sm z-40"
+        className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 transition-opacity"
         onClick={onClose}
       ></div>
-      <div
-        id="default-modal"
-        tabIndex="-1"
-        aria-hidden="true"
-        className=" fixed inset-0 z-50 flex justify-center items-center w-full overflow-y-auto"
-      >
-        <div className="relative p-4 w-full max-w-2xl max-h-full">
-          <div className="relative bg-white rounded-lg shadow-sm dark:bg-gray-700">
-            <div className="flex items-center justify-between p-4 md:p-5 border-b rounded-t dark:border-gray-600 border-gray-200">
-              <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
-                Applications For {data?.jobName}
-              </h3>{" "}
-              <br />
+
+      {/* Modal */}
+      <div className="fixed inset-0 z-50 flex justify-center items-center p-4 overflow-y-auto">
+        <div className="relative w-full max-w-4xl max-h-[90vh] flex flex-col">
+          <div className="relative bg-white rounded-2xl shadow-2xl flex flex-col max-h-full">
+            {/* Header */}
+            <div className="bg-gradient-to-r from-blue-600 to-indigo-600 px-6 py-5 flex items-center justify-between rounded-t-2xl flex-shrink-0">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center">
+                  <FileText className="w-6 h-6 text-white" />
+                </div>
+                <div>
+                  <h3 className="text-xl font-bold text-white">Applications</h3>
+                  <p className="text-blue-100 text-sm">
+                    {data?.jobName || "Job Position"}
+                  </p>
+                </div>
+              </div>
               <button
                 type="button"
-                className="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white cursor-pointer"
-                data-modal-hide="default-modal"
                 onClick={onClose}
+                className="p-2 hover:bg-white/20 rounded-lg transition-colors"
               >
-                <svg
-                  className="w-3 h-3"
-                  aria-hidden="true"
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 14 14"
-                >
-                  <path
-                    stroke="currentColor"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"
-                  />
-                </svg>
-                <span className="sr-only">Close modal</span>
+                <X className="w-6 h-6 text-white" />
               </button>
             </div>
-            <div className="p-4 md:p-5 space-y-4">
+
+            {/* Content */}
+            <div className="p-6 overflow-y-auto flex-1">
               {data?.applications?.length > 0 ? (
-                <div className="space-y-3">
-                  {data.applications.map((app, index) => (
-                    <div
-                      key={index}
-                      className="flex flex-col md:flex-row justify-between md:items-center gap-3 bg-gray-50 border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow duration-200"
-                    >
-                      {/* Left: Applicant Info */}
-                      <div>
-                        <h4 className="text-lg font-semibold text-gray-800">
-                          {app?.userId.name}
-                          {console.log("App", app)}
-                        </h4>
-                        <p className="text-sm text-gray-500">
-                          Applied on {formatDate(app?.createdAt)}
-                        </p>
-                      </div>
+                <div className="space-y-4">
+                  {data.applications.map((app, index) => {
+                    const currentStatus = app.status || "applied";
+                    return (
+                      <div
+                        key={index}
+                        className="bg-white border border-gray-200 rounded-xl p-5 hover:shadow-lg hover:border-blue-300 transition-all duration-200"
+                      >
+                        <div className="flex flex-col lg:flex-row lg:items-center gap-4">
+                          {/* Applicant Info */}
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-3 mb-2">
+                              <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-500 rounded-full flex items-center justify-center flex-shrink-0">
+                                <User className="w-5 h-5 text-white" />
+                              </div>
+                              <div className="min-w-0">
+                                <h4 className="text-lg font-semibold text-gray-900 truncate">
+                                  {app?.userId.name}
+                                </h4>
+                                <div className="flex items-center gap-1.5 text-sm text-gray-500">
+                                  <Calendar className="w-3.5 h-3.5" />
+                                  <span>
+                                    Applied on {formatDate(app?.createdAt)}
+                                  </span>
+                                </div>
+                              </div>
+                            </div>
 
-                      {/* Middle: Resume */}
-                      <div>
-                        <a
-                          href={app?.uploadedResume}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-sm font-medium text-white bg-orange-500 hover:bg-orange-600 px-4 py-2 rounded-lg transition-colors duration-150"
-                        >
-                          View Resume
-                        </a>
-                      </div>
+                            {/* Status Badge */}
+                            <div className="mt-2">
+                              <span
+                                className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold ${
+                                  statusColors[currentStatus] ||
+                                  "bg-gray-100 text-gray-700"
+                                }`}
+                              >
+                                {currentStatus.charAt(0).toUpperCase() +
+                                  currentStatus.slice(1)}
+                              </span>
+                            </div>
+                          </div>
 
-                      {/* Right: Status Dropdown */}
-                      <div className="flex items-center gap-2">
-                        <label className="text-sm text-gray-600">Status:</label>
-                        <select
-                          defaultValue={app.status || "applied"}
-                          onChange={(e) =>
-                            handleStatusChange(
-                              app._id,
-                              e.target.value,
-                              app?.userId._id
-                            )
-                          }
-                          className="border border-gray-300 rounded-md text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-orange-400"
-                        >
-                          {statusOptions.map((status) => (
-                            <option key={status} value={status}>
-                              {status.charAt(0).toUpperCase() + status.slice(1)}
-                            </option>
-                          ))}
-                        </select>
+                          {/* Actions */}
+                          <div className="flex flex-col sm:flex-row gap-3 lg:items-center">
+                            {/* Resume Button */}
+                            <a
+                              href={app?.uploadedResume}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-xl font-semibold hover:shadow-lg hover:scale-105 transition-all duration-200 text-sm"
+                            >
+                              <Eye className="w-4 h-4" />
+                              View Resume
+                            </a>
+
+                            {/* Status Dropdown */}
+                            <div className="flex items-center gap-2">
+                              <label className="text-sm font-medium text-gray-600 whitespace-nowrap">
+                                Status:
+                              </label>
+                              <select
+                                defaultValue={currentStatus}
+                                onChange={(e) =>
+                                  handleStatusChange(
+                                    app._id,
+                                    e.target.value,
+                                    app?.userId._id
+                                  )
+                                }
+                                className="border border-gray-300 rounded-xl text-sm px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white hover:border-gray-400 transition-colors cursor-pointer font-medium"
+                              >
+                                {statusOptions.map((status) => (
+                                  <option key={status} value={status}>
+                                    {status.charAt(0).toUpperCase() +
+                                      status.slice(1)}
+                                  </option>
+                                ))}
+                              </select>
+                            </div>
+                          </div>
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               ) : (
-                <div className="text-center text-gray-500 py-8">
-                  No applications found for this job.
+                <div className="flex flex-col items-center justify-center py-16">
+                  <div className="w-20 h-20 bg-gradient-to-br from-gray-100 to-gray-200 rounded-full flex items-center justify-center mb-4">
+                    <FileText className="w-10 h-10 text-gray-400" />
+                  </div>
+                  <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                    No Applications Yet
+                  </h3>
+                  <p className="text-gray-500 text-center">
+                    No applications found for this job position.
+                  </p>
                 </div>
               )}
             </div>
+
+            {/* Footer Stats */}
+            {data?.applications?.length > 0 && (
+              <div className="px-6 py-4 bg-gray-50 border-t border-gray-200 rounded-b-2xl flex-shrink-0">
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-gray-600">
+                    Total Applications:{" "}
+                    <span className="font-semibold text-gray-900">
+                      {data.applications.length}
+                    </span>
+                  </span>
+                  <div className="flex gap-4">
+                    <span className="text-gray-600">
+                      Shortlisted:{" "}
+                      <span className="font-semibold text-green-600">
+                        {
+                          data.applications.filter(
+                            (a) => a.status === "shortlisted"
+                          ).length
+                        }
+                      </span>
+                    </span>
+                    <span className="text-gray-600">
+                      Under Review:{" "}
+                      <span className="font-semibold text-yellow-600">
+                        {
+                          data.applications.filter(
+                            (a) => a.status === "under review"
+                          ).length
+                        }
+                      </span>
+                    </span>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>

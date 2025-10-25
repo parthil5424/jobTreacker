@@ -139,7 +139,7 @@ function UserForm({ onSuccess, onCancel, editData }) {
 
   return (
     <div className="min-h-screen bg-gray-50  px-4">
-      {user && user.role.name == "Admin" ? <Navbar /> : <LandingNavbar />}
+      {!user && <LandingNavbar />}
       <div className="max-w-5xl mx-auto  pt-24 pb-20 px-6">
         {/* Tab System */}
         <div className="bg-white rounded-t-2xl shadow-lg overflow-hidden">
