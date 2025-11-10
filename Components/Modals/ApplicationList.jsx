@@ -1,7 +1,17 @@
 "use client";
+import { SocketContext } from "@/lib/context/socketProvider";
 import { X, FileText, Calendar, User, Eye } from "lucide-react";
+import { useContext, useEffect } from "react";
 
 const ApplicationList = ({ open, onClose, data }) => {
+  const socket = useContext(SocketContext);
+  console.log("Socket", socket);
+  useEffect(() => {
+    socket.on("statusAccepted", (msg) => {
+      console.log(msg);
+    });
+  }, [socket]);
+
   function formatDate(isoDate) {
     const date = new Date(isoDate);
     const day = String(date.getDate()).padStart(2, "0");
@@ -43,6 +53,10 @@ const ApplicationList = ({ open, onClose, data }) => {
       });
       if (res.status == 200) {
         console.log("Status Updated SuccessFully");
+        socket.emit(
+          "statusChanged",
+          `Status of Job ${id} changed to ${status}`
+        );
       }
     } catch (err) {
       console.error("Error", err);

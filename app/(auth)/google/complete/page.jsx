@@ -6,7 +6,6 @@ import { useSession } from "next-auth/react";
 import { useAuthStore } from "@/Store/useAuthStore";
 
 export default function GoogleComplete() {
-  console.log("Complete Called")
   const { data: session, status } = useSession();
   const router = useRouter();
   const { login } = useAuthStore();
@@ -24,7 +23,7 @@ export default function GoogleComplete() {
             email: session?.user?.email,
             provider: "google",
           }),
-          headers: { "Content-Type": "application/json" }
+          headers: { "Content-Type": "application/json" },
         });
 
         if (resLogin.status === 200) {
@@ -40,15 +39,12 @@ export default function GoogleComplete() {
             console.error("No User Found");
           }
         }
-
       }
+    } catch (err) {
+      console.error("Error", err);
+      router.push("/Login");
     }
-    catch (err) {
-      console.error("Error", err)
-      router.push("/Login")
-    }
-
-  }
+  };
 
   return <p>Finalizing your login...</p>;
 }

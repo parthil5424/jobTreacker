@@ -181,7 +181,9 @@ function Job() {
             <p className="text-gray-600">
               {user?.role?.name !== "Applicant"
                 ? "Create and manage your job postings"
-                : `${jobs && jobs.filter((job) => job.isActive)?.length} positions available`}
+                : `${
+                    jobs && jobs.filter((job) => job.isActive)?.length
+                  } positions available`}
             </p>
           </div>
 
