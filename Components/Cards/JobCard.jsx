@@ -9,7 +9,8 @@ import {
   Trash2,
   Users,
 } from "lucide-react";
-export default function JobCard({
+import { memo } from "react"
+function JobCard({
   job,
   user,
   userApplications,
@@ -18,6 +19,7 @@ export default function JobCard({
   onDelete,
   onViewApplications,
 }) {
+  console.log("Job Card Called")
   const isApplied = userApplications?.find((app) => app.jobId === job._id);
   const isOwner = user && job.createdBy === user.id;
   const isApplicant = user?.role?.name === "Applicant";
@@ -163,3 +165,6 @@ export default function JobCard({
     </article>
   );
 }
+
+
+export default memo(JobCard);

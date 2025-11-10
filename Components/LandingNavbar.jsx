@@ -13,7 +13,6 @@ export default function LandingNavbar() {
       setScrolled(window.scrollY > 20);
     };
     let url = window.location.pathname;
-    console.log("url", url);
     if (url.includes("Login") || url.includes("SignUp")) {
       setShowFeature(false);
     }
@@ -22,9 +21,8 @@ export default function LandingNavbar() {
   }, []);
   return (
     <nav
-      className={`fixed w-full z-50 transition-all duration-300 ${
-        scrolled ? "bg-white/80 backdrop-blur-lg shadow-lg" : "bg-transparent"
-      }`}
+      className={`fixed w-full z-50 transition-all duration-300 ${scrolled ? "bg-white/80 backdrop-blur-lg shadow-lg" : "bg-transparent"
+        }`}
     >
       <div className="max-w-7xl mx-auto px-6 py-4">
         <div className="flex items-center justify-between">

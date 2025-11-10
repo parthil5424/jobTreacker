@@ -1,10 +1,11 @@
 "use client";
-import React from "react";
+import React, { memo } from "react";
 import { Field, Form, Formik } from "formik";
 import * as yup from "yup";
 import { X, FileText } from "lucide-react";
 
 function RoleForm({ onSuccess, onCancel, editData }) {
+  console.log("Role Form Called")
   const validationSchema = yup.object({
     name: yup.string().required().min(2).max(15),
     isActive: yup.boolean().required().default(true),
@@ -132,4 +133,4 @@ function RoleForm({ onSuccess, onCancel, editData }) {
   );
 }
 
-export default RoleForm;
+export default memo(RoleForm);

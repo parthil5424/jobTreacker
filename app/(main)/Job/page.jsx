@@ -152,7 +152,7 @@ function Job() {
       fetchData();
       fetchApplication();
     } catch (err) {
-      console.error("Error Occurred");
+      console.error("Error Occurred", err);
     }
   };
 

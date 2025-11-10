@@ -1,6 +1,6 @@
 "use client";
 import UserForm from "@/Components/Forms/UserForm";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import {
   Users,
   UserPlus,
@@ -41,6 +41,7 @@ function page() {
 
   const fetchRoles = async () => {
     try {
+      console.log("FetchRoles Called")
       const res = await fetch("/api/Role");
       const data = await res.json();
       setAllRoles(data.data);
@@ -49,8 +50,10 @@ function page() {
     }
   };
 
-  const getRoleName = (id) => {
+
+  const getRoleName = useCallback((id) => {
     try {
+      console.log("Get Role Name Called")
       if (allRoles.length > 0) {
         const roleName = allRoles.find((role) => role._id === id)?.name;
         return roleName;
@@ -61,7 +64,7 @@ function page() {
       console.error("error ", err);
       return "";
     }
-  };
+  }, [allRoles]);
 
   const handleEdit = (elem) => {
     let editElem = { ...elem };

@@ -14,6 +14,7 @@ import {
   Clock,
 } from "lucide-react";
 function JobForm({ onSuccess, onCancel, editData }) {
+  console.log("Job Form Renderred")
   const { user } = useAuthStore();
   const [image, setImage] = useState(editData?.image || null);
   const validationSchema = yup.object({
@@ -34,7 +35,6 @@ function JobForm({ onSuccess, onCancel, editData }) {
   };
   const handleCancel = () => {
     onCancel();
-    console.log("hanle Cancel");
   };
   const handleSubmit = async (values) => {
     try {
@@ -62,6 +62,7 @@ function JobForm({ onSuccess, onCancel, editData }) {
       if (res.status == 200) onSuccess();
       else {
         const data = await res.json();
+        console.log("Failed", data.message)
       }
     } catch (err) {
       console.error("Something Went Wrong", err);
@@ -126,11 +127,10 @@ function JobForm({ onSuccess, onCancel, editData }) {
                         type="text"
                         id="name"
                         name="name"
-                        className={`w-full pl-10 pr-4 py-3 border ${
-                          errors.name && touched.name
-                            ? "border-red-500 focus:ring-red-500"
-                            : "border-gray-300 focus:ring-blue-500"
-                        } rounded-xl focus:ring-2 focus:border-transparent outline-none transition-all`}
+                        className={`w-full pl-10 pr-4 py-3 border ${errors.name && touched.name
+                          ? "border-red-500 focus:ring-red-500"
+                          : "border-gray-300 focus:ring-blue-500"
+                          } rounded-xl focus:ring-2 focus:border-transparent outline-none transition-all`}
                       />
                     </div>
                     {errors.name && touched.name && (
@@ -154,11 +154,10 @@ function JobForm({ onSuccess, onCancel, editData }) {
                         type="text"
                         id="description"
                         name="description"
-                        className={`w-full pl-10 pr-4 py-3 border ${
-                          errors.description && touched.description
-                            ? "border-red-500 focus:ring-red-500"
-                            : "border-gray-300 focus:ring-blue-500"
-                        } rounded-xl focus:ring-2 focus:border-transparent outline-none transition-all resize-none`}
+                        className={`w-full pl-10 pr-4 py-3 border ${errors.description && touched.description
+                          ? "border-red-500 focus:ring-red-500"
+                          : "border-gray-300 focus:ring-blue-500"
+                          } rounded-xl focus:ring-2 focus:border-transparent outline-none transition-all resize-none`}
                       />
                       {errors.description && touched.description && (
                         <p className="text-red-500 text-sm mt-1.5 ml-1">
@@ -183,11 +182,10 @@ function JobForm({ onSuccess, onCancel, editData }) {
                             id="salaryMin"
                             name="salaryMin"
                             placeholder="Min (e.g., 50000)"
-                            className={`w-full pl-10 pr-4 py-3 border ${
-                              errors.salaryMin && touched.salaryMin
-                                ? "border-red-500 focus:ring-red-500"
-                                : "border-gray-300 focus:ring-blue-500"
-                            } rounded-xl focus:ring-2 focus:border-transparent outline-none transition-all`}
+                            className={`w-full pl-10 pr-4 py-3 border ${errors.salaryMin && touched.salaryMin
+                              ? "border-red-500 focus:ring-red-500"
+                              : "border-gray-300 focus:ring-blue-500"
+                              } rounded-xl focus:ring-2 focus:border-transparent outline-none transition-all`}
                           />
                         </div>
                       </div>
@@ -201,11 +199,10 @@ function JobForm({ onSuccess, onCancel, editData }) {
                             id="salaryMax"
                             name="salaryMax"
                             placeholder="Max (e.g., 80000)"
-                            className={`w-full pl-10 pr-4 py-3 border ${
-                              errors.salaryMax && touched.salaryMax
-                                ? "border-red-500 focus:ring-red-500"
-                                : "border-gray-300 focus:ring-blue-500"
-                            } rounded-xl focus:ring-2 focus:border-transparent outline-none transition-all`}
+                            className={`w-full pl-10 pr-4 py-3 border ${errors.salaryMax && touched.salaryMax
+                              ? "border-red-500 focus:ring-red-500"
+                              : "border-gray-300 focus:ring-blue-500"
+                              } rounded-xl focus:ring-2 focus:border-transparent outline-none transition-all`}
                           />
                         </div>
                       </div>
@@ -240,11 +237,10 @@ function JobForm({ onSuccess, onCancel, editData }) {
                         placeholder="e.g., 3"
                         min="0"
                         max="50"
-                        className={`w-full pl-10 pr-20 py-3 border ${
-                          errors.experience && touched.experience
-                            ? "border-red-500 focus:ring-red-500"
-                            : "border-gray-300 focus:ring-blue-500"
-                        } rounded-xl focus:ring-2 focus:border-transparent outline-none transition-all`}
+                        className={`w-full pl-10 pr-20 py-3 border ${errors.experience && touched.experience
+                          ? "border-red-500 focus:ring-red-500"
+                          : "border-gray-300 focus:ring-blue-500"
+                          } rounded-xl focus:ring-2 focus:border-transparent outline-none transition-all`}
                       />
                       <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
                         <span className="text-gray-500 text-sm">years</span>

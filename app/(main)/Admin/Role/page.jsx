@@ -1,6 +1,6 @@
 "use client";
 import RoleForm from "@/Components/Forms/RoleForm";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { Shield, Plus, Edit, Trash2, CheckCircle, XCircle } from 'lucide-react';
 
 
@@ -27,10 +27,10 @@ function role() {
     }
   };
 
-  const handleEdit = (elem) => {
+  const handleEdit = useCallback((elem) => {
     setEditData(elem);
     setisOpen(true);
-  };
+  }, []);
 
   const handleDelete = async (id) => {
     try {
@@ -49,30 +49,25 @@ function role() {
     }
   };
 
-  const onSuccess = () => {
+  const onSuccess = useCallback(() => {
     fetchData();
     setisOpen(false);
-  };
+  }, []);
 
-  const onCancel = () => {
+  const onCancel = useCallback(() => {
+    setEditData(null)
     setisOpen(false);
-  };
+  }, []);
 
   useEffect(() => {
     fetchData();
   }, []);
 
-  if (isOpen && RoleForm) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 p-6">
-        <RoleForm
-          onSuccess={onSuccess}
-          onCancel={onCancel}
-          editData={editData}
-        />
-      </div>
-    );
-  }
+  // if (isOpen && RoleForm) {
+  //   return (
+
+  //   );
+  // }
 
 
   return (
@@ -223,6 +218,18 @@ function role() {
               </div>
             </div>
           )}
+
+
+          {
+            isOpen &&
+            <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 p-6">
+              <RoleForm
+                onSuccess={onSuccess}
+                onCancel={onCancel}
+                editData={editData}
+              />
+            </div>
+          }
         </div>
       </div>
     </div>
