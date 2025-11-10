@@ -1,11 +1,12 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import JobForm from "@/Components/Forms/JobForm";
 import ApplicationForm from "@/Components/Forms/ApplicationForm";
 import ApplicationList from "@/Components/Modals/ApplicationList";
 import { useAuthStore } from "@/Store/useAuthStore";
 import { Briefcase, Plus } from "lucide-react";
 import JobCard from "@/Components/Cards/JobCard";
+import { SocketContext } from "@/lib/context/socketProvider";
 
 function Job() {
   const { user, isAuthenticated } = useAuthStore();
@@ -18,6 +19,7 @@ function Job() {
   const [isOpen, setisOpen] = useState(false);
   const [showAppForm, setShowAppForm] = useState(false);
   const [showAppList, setShowAppList] = useState(false);
+  const socket = useContext(SocketContext);
 
   useEffect(() => {
     try {
@@ -34,8 +36,21 @@ function Job() {
     }
   }, [user]);
 
+  useEffect(() => {
+    if (socket.connected) {
+      socket.on("ApplicationStatusChanged", (msg) => {
+        console.log("msg", msg);
+        fetchData();
+        if (user) {
+          fetchApplication();
+        }
+      });
+    }
+  }, [socket, user]);
+
   const fetchData = async () => {
     try {
+      console.log("Fetch Jobs Called");
       const res = await fetch("/api/Job");
       const data = await res.json();
       if (data.status == 200) {
@@ -57,10 +72,14 @@ function Job() {
         if (res.status == 200) {
           const data = await res.json();
           setUserApplication(data.data);
+          console.log("user ApplicaTion Data", data.data);
+          console.log("user Application Set");
         } else {
           const { message } = await res.json();
           console.log("Failed to Fetch Application", message);
         }
+      } else {
+        console.log("user Role Not Found", user);
       }
     } catch (err) {
       console.error("Error", err);

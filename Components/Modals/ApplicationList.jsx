@@ -53,10 +53,7 @@ const ApplicationList = ({ open, onClose, data }) => {
       });
       if (res.status == 200) {
         console.log("Status Updated SuccessFully");
-        socket.emit(
-          "statusChanged",
-          `Status of Job ${id} changed to ${status}`
-        );
+        socket.emit("statusChanged", { id, status, userId });
       }
     } catch (err) {
       console.error("Error", err);
