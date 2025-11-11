@@ -9,9 +9,11 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@react-google-maps/api": "^2.20.7",
     "bcryptjs": "^3.0.2",
     "express": "^5.1.0",
     "formik": "^2.4.6",
+    "google-maps": "^4.3.3",
     "jose": "^6.1.0",
     "js-cookie": "^3.0.5",
     "jsonwebtoken": "^9.0.2",
