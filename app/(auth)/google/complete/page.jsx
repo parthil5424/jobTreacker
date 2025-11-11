@@ -34,8 +34,9 @@ export default function GoogleComplete() {
             router.push("/Merchant/DashBoard");
           }
         } else {
-          if (resLogin.status === 400) {
-            console.error("No User Found");
+          if (resLogin.status === 404) {
+            console.log("No User Found");
+            router.push("/Login");
           }
         }
       }

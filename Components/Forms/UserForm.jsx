@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import { Formik, Field, Form, ErrorMessage } from "formik";
 import * as yup from "yup";
 import Link from "next/link";
@@ -7,18 +7,52 @@ import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/Store/useAuthStore";
 import LandingNavbar from "../LandingNavbar";
 import Navbar from "../Navbar";
+import { GoogleMap, useLoadScript } from "@react-google-maps/api";
 function UserForm({ onSuccess, onCancel, editData }) {
+  const [coords, setCoords] = useState({
+    latitude: "",
+    longitude: "",
+  });
   const [roles, setRoles] = useState(null);
   const [resume, setResume] = useState(null);
   const [showPassword, setShowPassword] = useState(false);
   const [selectedRole, setSelectedRole] = useState("Applicant");
   const { user } = useAuthStore();
   const router = useRouter();
+
+  //Google Maps Load
+  const { isLoaded } = useLoadScript({
+    googleMapsApiKey: "AIzaSyCIcXkNG7D_chQ_T2LCse7_JPbb5083Buw",
+  });
+
+  const fectLatitude = useCallback(() => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          return position;
+        },
+        (err) => {
+          console.log("Error", err);
+          return null;
+        }
+      );
+    }
+
+    return navigator;
+  }, [navigator]);
+
   useEffect(() => {
     fetchRole();
     if (editData?.resume) {
       console.log(editData?.resume);
       setResume(editData.resume);
+    }
+    const { position } = fectLatitude();
+    if (position) {
+      setCoords({
+        latitude: position.coords.latitude,
+        latitude: position.coords.longitude,
+      });
     }
   }, []);
 
@@ -459,6 +493,29 @@ function UserForm({ onSuccess, onCancel, editData }) {
                   </label>
                 </div> */}
 
+                <div className="mt-6">
+                  {/* <label
+                    htmlFor="personalAddress"
+                    className="block mb-2 text-sm font-medium text-gray-900"
+                  >
+                    Personal Address
+                  </label>
+                  <Field
+                    required
+                    as="textarea"
+                    id="personalAddress"
+                    name="personalAddress"
+                    rows="3"
+                    placeholder="123 Business Street, Suite 100"
+                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-purple-500 focus:border-purple-500 block w-full p-3"
+                  />
+                  <ErrorMessage
+                    name="personalAddress"
+                    component="div"
+                    className="text-red-500 text-sm mt-1"
+                  /> */}
+                  {isLoaded && <GoogleMap />}
+                </div>
                 {/* Action Buttons */}
                 <div className="flex items-center justify-center gap-x-2 pt-6">
                   <button
