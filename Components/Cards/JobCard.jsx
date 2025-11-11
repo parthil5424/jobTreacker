@@ -9,7 +9,8 @@ import {
   Trash2,
   Users,
 } from "lucide-react";
-import { memo } from "react"
+import { memo, useContext, useEffect } from "react";
+
 function JobCard({
   job,
   user,
@@ -19,7 +20,7 @@ function JobCard({
   onDelete,
   onViewApplications,
 }) {
-  console.log("Job Card Called")
+  console.log("Job Card Called");
   const isApplied = userApplications?.find((app) => app.jobId === job._id);
   const isOwner = user && job.createdBy === user.id;
   const isApplicant = user?.role?.name === "Applicant";
@@ -104,15 +105,16 @@ function JobCard({
                   Status: {isApplied.status}
                 </div>
               )}
-              {
-                job.isActive ? <button
+              {job.isActive ? (
+                <button
                   type="button"
                   disabled={isApplied}
                   onClick={() => onApply(job)}
-                  className={`w-full py-3 px-6 rounded-xl text-sm font-semibold transition-all duration-300 flex items-center justify-center gap-2 ${isApplied
-                    ? "bg-gray-100 text-gray-400 cursor-not-allowed"
-                    : "bg-gradient-to-r from-blue-600 to-indigo-600 text-white hover:shadow-lg hover:scale-105"
-                    }`}
+                  className={`w-full py-3 px-6 rounded-xl text-sm font-semibold transition-all duration-300 flex items-center justify-center gap-2 ${
+                    isApplied
+                      ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+                      : "bg-gradient-to-r from-blue-600 to-indigo-600 text-white hover:shadow-lg hover:scale-105"
+                  }`}
                 >
                   {isApplied ? (
                     <>
@@ -125,9 +127,10 @@ function JobCard({
                       Apply Now
                     </>
                   )}
-                </button> : "Not Accepting Applications"
-              }
-
+                </button>
+              ) : (
+                "Not Accepting Applications"
+              )}
             </>
           )}
 
@@ -165,6 +168,5 @@ function JobCard({
     </article>
   );
 }
-
 
 export default memo(JobCard);

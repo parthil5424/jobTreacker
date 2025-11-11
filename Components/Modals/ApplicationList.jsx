@@ -1,8 +1,17 @@
 "use client";
+import { SocketContext } from "@/lib/context/socketProvider";
 import { X, FileText, Calendar, User, Eye } from "lucide-react";
+import { useContext, useEffect } from "react";
 
 const ApplicationList = ({ open, onClose, data }) => {
-  console.log("Application List Called")
+  const socket = useContext(SocketContext);
+  console.log("Socket", socket);
+  useEffect(() => {
+    socket.on("statusAccepted", (msg) => {
+      console.log(msg);
+    });
+  }, [socket]);
+
   function formatDate(isoDate) {
     const date = new Date(isoDate);
     const day = String(date.getDate()).padStart(2, "0");
@@ -44,6 +53,7 @@ const ApplicationList = ({ open, onClose, data }) => {
       });
       if (res.status == 200) {
         console.log("Status Updated SuccessFully");
+        socket.emit("statusChanged", { id, status, userId });
       }
     } catch (err) {
       console.error("Error", err);
@@ -118,9 +128,10 @@ const ApplicationList = ({ open, onClose, data }) => {
                             {/* Status Badge */}
                             <div className="mt-2">
                               <span
-                                className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold ${statusColors[currentStatus] ||
+                                className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold ${
+                                  statusColors[currentStatus] ||
                                   "bg-gray-100 text-gray-700"
-                                  }`}
+                                }`}
                               >
                                 {currentStatus.charAt(0).toUpperCase() +
                                   currentStatus.slice(1)}

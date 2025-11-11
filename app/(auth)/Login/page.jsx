@@ -7,7 +7,7 @@ import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import { Briefcase, Mail, Lock, ArrowRight } from "lucide-react";
 import { signIn } from "next-auth/react";
-import { toast } from "react-toastify"
+import { toast } from "react-toastify";
 
 function Login() {
   const [showPassword, setShowPassword] = useState(false);
@@ -25,14 +25,14 @@ function Login() {
       if (res.status == 200) {
         login(data.data, data.token);
         if (data.data.role.name == "Admin") {
-
           router.push("/Admin/DashBoard");
         } else {
           router.push("/Merchant/DashBoard");
         }
-        toast.success("Login Successfully")
+        toast.success("Login Successfully");
       } else {
         console.log("Login Failed", data.message);
+        toast.error(data.message || "Failed to Login");
       }
     } catch (err) {
       console.error("Failed to Login", err);
@@ -45,11 +45,9 @@ function Login() {
 
   const handleGoogleClick = async () => {
     try {
-      console.log("Google Clicked");
       const res = await signIn("google", {
         callbackUrl: "/google/complete",
       });
-      console.log("---------Res-----", res)
     } catch (err) {
       console.error("Error", err);
     }
@@ -94,10 +92,11 @@ function Login() {
                         type="email"
                         id="email"
                         name="email"
-                        className={`w-full pl-10 pr-4 py-3 border ${errors.email && touched.email
-                          ? "border-red-500 focus:ring-red-500"
-                          : "border-gray-300 focus:ring-blue-500"
-                          } rounded-xl focus:ring-2 focus:border-transparent outline-none transition-all`}
+                        className={`w-full pl-10 pr-4 py-3 border ${
+                          errors.email && touched.email
+                            ? "border-red-500 focus:ring-red-500"
+                            : "border-gray-300 focus:ring-blue-500"
+                        } rounded-xl focus:ring-2 focus:border-transparent outline-none transition-all`}
                       />
                       {errors.email && touched.email && (
                         <div className="text-red-500 text-sm mt-1.5 ml-1">
@@ -121,10 +120,11 @@ function Login() {
                         type={showPassword ? `text` : "password"}
                         id="password"
                         name="password"
-                        className={`w-full pl-10 pr-4 py-3 border ${errors.password && touched.password
-                          ? "border-red-500 focus:ring-red-500"
-                          : "border-gray-300 focus:ring-blue-500"
-                          } rounded-xl focus:ring-2 focus:border-transparent outline-none transition-all`}
+                        className={`w-full pl-10 pr-4 py-3 border ${
+                          errors.password && touched.password
+                            ? "border-red-500 focus:ring-red-500"
+                            : "border-gray-300 focus:ring-blue-500"
+                        } rounded-xl focus:ring-2 focus:border-transparent outline-none transition-all`}
                       />
                       <button
                         type="button"
@@ -162,7 +162,7 @@ function Login() {
             </div>
 
             {/* Social Login */}
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4">
               <button
                 type="button"
                 className="flex items-center justify-center gap-2 px-4 py-3 border border-gray-300 rounded-xl hover:bg-gray-50 transition-all cursor-pointer"
@@ -190,7 +190,7 @@ function Login() {
                   Google
                 </span>
               </button>
-              <button
+              {/* <button
                 type="button"
                 className="flex items-center justify-center gap-2 px-4 py-3 border border-gray-300 rounded-xl hover:bg-gray-50 transition-all  cursor-pointer"
               >
@@ -204,7 +204,7 @@ function Login() {
                 <span className="text-sm font-medium text-gray-700">
                   GitHub
                 </span>
-              </button>
+              </button> */}
             </div>
           </div>
         </div>

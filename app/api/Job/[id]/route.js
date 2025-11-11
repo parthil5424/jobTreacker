@@ -50,6 +50,7 @@ export async function PUT(req, { params }) {
       imageurl = `/uploads/${fileName}`;
     }
 
+    console.log("experience", experience);
     const res = await Job.findByIdAndUpdate(id, {
       name: name,
       description: description,
