@@ -3,15 +3,17 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev --turbopack",
-    "build": "next build --turbopack",
-    "start": "next start",
+    "dev": "node api.js && next dev --turbopack",
+    "build": "node api.js && next build --turbopack",
+    "start": "node api.js && next start",
     "lint": "eslint"
   },
   "dependencies": {
+    "@react-google-maps/api": "^2.20.7",
     "bcryptjs": "^3.0.2",
     "express": "^5.1.0",
     "formik": "^2.4.6",
+    "google-maps": "^4.3.3",
     "jose": "^6.1.0",
     "js-cookie": "^3.0.5",
     "jsonwebtoken": "^9.0.2",
