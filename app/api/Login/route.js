@@ -8,7 +8,6 @@ import Role from "@/lib/Models/Role";
 export async function POST(req, { params }) {
   try {
     dbConnect();
-    console.log("Login");
     const { email, password, provider } = await req.json();
 
     const isExist = await User.findOne({ email: email });
