@@ -13,9 +13,19 @@ const io = new Server(httpServer, {
 const userSockets = new Map();
 
 io.on("connection", (socket) => {
-  console.log("Connection Established with Socket Id", socket.id);
   socket.on("disconnect", (reason) => {
-    console.log("❌ Socket disconnected:", socket.id, "Reason:", reason);
+    console.log("Socket disconnected:", socket.id, "Reason:", reason);
+    if (userSockets) {
+      for (const [userId, ids] of userSockets.entries()) {
+        console.log("ids", ids);
+        if (ids.has(socket.id)) {
+          ids.delete(socket.id);
+          if (ids.size == 0) {
+            userSockets.delete(userId);
+          }
+        }
+      }
+    }
   });
 
   socket.on("identify", (userId) => {
@@ -23,14 +33,11 @@ io.on("connection", (socket) => {
       if (!userSockets.has(userId)) {
         userSockets.set(userId, new Set());
       }
-      console.log(`User ${userId} → socket ${socket.id}`);
       userSockets.get(userId).add(socket.id);
-      console.log("----- User Sockets ----", userSockets);
     }
   });
 
   socket.on("statusChanged", ({ id, status, userId }) => {
-    console.log("------ MapUserId ------", userSockets);
     if (userId) {
       if (userSockets.has(userId)) {
         const tabId = userSockets.get(userId);

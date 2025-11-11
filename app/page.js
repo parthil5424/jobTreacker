@@ -15,6 +15,8 @@ import {
 import LandingNavbar from "@/Components/LandingNavbar";
 
 export default function Home() {
+  console.log("Env Data", process.env.NEXTAUTH_TRUST_HOST);
+  console.log(process.env.NEXTAUTH_URL);
   const features = [
     {
       icon: <Briefcase className="w-8 h-8" />,
