@@ -6,6 +6,7 @@ import bcrypt from "bcryptjs";
 import path from "path";
 import fs from "fs/promises";
 import Role from "@/lib/Models/Role";
+import { UserLock } from "lucide-react";
 const uploadDir = path.join(process.cwd(), "public/uploads");
 export async function GET(req) {
   try {
@@ -82,6 +83,14 @@ export async function POST(req) {
         landmark: data.get("landmark"),
       };
     }
+    console.log(data.get("floor"));
+    if (data.get("floor") && data.get("latitude"))
+      userObj.personalAddress = {
+        floor: data.get("floor"),
+        latitude: data.get("latitude"),
+        longitude: data.get("longitude"),
+      };
+
     const res = await User.create(userObj);
     return NextResponse.json(
       {

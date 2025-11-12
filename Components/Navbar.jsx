@@ -1,15 +1,53 @@
 "use client";
 import { useAuthStore } from "@/Store/useAuthStore";
-import { Briefcase } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, useRef, useEffect } from "react";
+import { Briefcase, Bell, X } from "lucide-react";
 
 function Navbar() {
   const { logout, user } = useAuthStore();
   const [open, setOpen] = useState(false);
   const menuRef = useRef(null);
   const router = useRouter();
+  const [notificationOpen, setNotificationOpen] = useState(false);
+  const [notifications, setNotifications] = useState([
+    {
+      id: 1,
+      message: "New job application received",
+      time: "2 mins ago",
+      read: false,
+    },
+    {
+      id: 2,
+      message: "Interview scheduled for tomorrow",
+      time: "1 hour ago",
+      read: false,
+    },
+    {
+      id: 3,
+      message: "Application status updated",
+      time: "3 hours ago",
+      read: false,
+    },
+    {
+      id: 4,
+      message: "New message from recruiter",
+      time: "5 hours ago",
+      read: true,
+    },
+    {
+      id: 5,
+      message: "Profile viewed by employer",
+      time: "1 day ago",
+      read: true,
+    },
+  ]);
+
+  const notificationRef = useRef(null);
+
+  // Get unread notification count
+  const unreadCount = notifications.filter((n) => !n.read).length;
   const handleLogout = () => {
     logout();
     router.push("/Login");
@@ -23,6 +61,19 @@ function Navbar() {
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
+  const markAsRead = (id) => {
+    setNotifications(
+      notifications.map((n) => (n.id === id ? { ...n, read: true } : n))
+    );
+  };
+
+  const markAllAsRead = () => {
+    setNotifications(notifications.map((n) => ({ ...n, read: true })));
+  };
+
+  const clearNotification = (id) => {
+    setNotifications(notifications.filter((n) => n.id !== id));
+  };
   if (!user) return <div>Loading</div>;
   return (
     <nav className="border-gray-200 bg-gray-900">
@@ -111,6 +162,93 @@ function Navbar() {
                 </li>
               </>
             )}
+
+            <li className="relative" ref={notificationRef}>
+              <button
+                onClick={() => setNotificationOpen(!notificationOpen)}
+                className="relative p-2 text-gray-400 hover:text-white focus:outline-none"
+              >
+                <Bell className="w-6 h-6" />
+                {unreadCount > 0 && (
+                  <span className="absolute top-0 right-0 inline-flex items-center justify-center w-5 h-5 text-xs font-bold text-white bg-red-500 rounded-full">
+                    {unreadCount > 9 ? "9+" : unreadCount}
+                  </span>
+                )}
+              </button>
+
+              {/* Notification Dropdown */}
+              {notificationOpen && (
+                <div className="absolute right-0 mt-2 w-80 bg-white border border-gray-200 rounded-lg shadow-lg z-50 max-h-96 overflow-hidden">
+                  <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200">
+                    <h3 className="text-sm font-semibold text-gray-900">
+                      Notifications ({unreadCount} unread)
+                    </h3>
+                    {unreadCount > 0 && (
+                      <button
+                        onClick={markAllAsRead}
+                        className="text-xs text-blue-600 hover:text-blue-700"
+                      >
+                        Mark all read
+                      </button>
+                    )}
+                  </div>
+
+                  <div className="overflow-y-auto max-h-80">
+                    {notifications.length === 0 ? (
+                      <div className="px-4 py-8 text-center text-gray-500 text-sm">
+                        No notifications
+                      </div>
+                    ) : (
+                      notifications.map((notification) => (
+                        <div
+                          key={notification.id}
+                          className={`px-4 py-3 border-b border-gray-100 hover:bg-gray-50 transition ${
+                            !notification.read ? "bg-blue-50" : ""
+                          }`}
+                        >
+                          <div className="flex items-start justify-between gap-2">
+                            <div
+                              className="flex-1 cursor-pointer"
+                              onClick={() => markAsRead(notification.id)}
+                            >
+                              <p
+                                className={`text-sm ${
+                                  !notification.read
+                                    ? "font-semibold text-gray-900"
+                                    : "text-gray-700"
+                                }`}
+                              >
+                                {notification.message}
+                              </p>
+                              <p className="text-xs text-gray-500 mt-1">
+                                {notification.time}
+                              </p>
+                            </div>
+                            <button
+                              onClick={() => clearNotification(notification.id)}
+                              className="text-gray-400 hover:text-gray-600"
+                            >
+                              <X className="w-4 h-4" />
+                            </button>
+                          </div>
+                        </div>
+                      ))
+                    )}
+                  </div>
+
+                  {notifications.length > 0 && (
+                    <div className="px-4 py-2 border-t border-gray-200">
+                      <a
+                        href="/notifications"
+                        className="block text-center text-sm text-blue-600 hover:text-blue-700"
+                      >
+                        View all notifications
+                      </a>
+                    </div>
+                  )}
+                </div>
+              )}
+            </li>
 
             <li>
               <button

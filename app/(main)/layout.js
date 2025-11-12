@@ -1,14 +1,17 @@
 "use client";
 import Navbar from "@/Components/Navbar";
+import NotificationContextProvider from "@/lib/context/notificationProvider";
 import SocketProvider from "@/lib/context/socketProvider";
 
 export default function MainLayout({ children }) {
   return (
     <div>
-      <SocketProvider>
-        <Navbar />
-        {children}
-      </SocketProvider>
+      <NotificationContextProvider>
+        <SocketProvider>
+          <Navbar />
+          {children}
+        </SocketProvider>
+      </NotificationContextProvider>
     </div>
   );
 }

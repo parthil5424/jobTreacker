@@ -1,13 +1,17 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import { Formik, Field, Form, ErrorMessage } from "formik";
 import * as yup from "yup";
 import { X, Upload, Eye, FileText, CheckCircle } from "lucide-react";
-function ApplicationForm({ onSuccess, onCancel, editData, userData, jobId }) {
+import { NotificationContext } from "@/lib/context/notificationProvider";
 
+function ApplicationForm({ onSuccess, onCancel, editData, userData, jobId }) {
   const [resume, setResume] = useState(userData?.resume || null);
   const [users, setUsers] = useState([]);
   const [jobs, setJobs] = useState([]);
+
+  const { addNotification } = useContext(NotificationContext);
+  console.log("Notify", notifyContext);
 
   const statusOptions = [
     "applied",
@@ -32,7 +36,6 @@ function ApplicationForm({ onSuccess, onCancel, editData, userData, jobId }) {
   };
   const handleSubmit = async (values) => {
     try {
-      console.log("Handle Submit Called");
       const formData = new FormData();
       let method = "POST",
         url = "/api/Application/";
@@ -55,8 +58,9 @@ function ApplicationForm({ onSuccess, onCancel, editData, userData, jobId }) {
         method: method,
         body: formData,
       });
-      if (res.status == 200) onSuccess();
-      else {
+      if (res.status == 200) {
+        onSuccess();
+      } else {
         const data = await res.json();
         console.log(data.message);
       }
@@ -337,54 +341,54 @@ function ApplicationForm({ onSuccess, onCancel, editData, userData, jobId }) {
                   {(!resume ||
                     (resume && typeof resume !== "string") ||
                     values.useExisting === false) && (
-                      <div className="mt-4">
-                        <label
-                          htmlFor="resume"
-                          className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-gray-300 rounded-xl cursor-pointer bg-white hover:bg-gray-50 hover:border-indigo-500 transition-all group"
-                        >
-                          <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                            <div className="w-12 h-12 bg-indigo-100 group-hover:bg-indigo-200 rounded-full flex items-center justify-center mb-3 transition-all">
-                              <Upload className="w-6 h-6 text-indigo-600" />
-                            </div>
-                            <p className="mb-1 text-sm font-semibold text-gray-700">
-                              Click to upload resume
+                    <div className="mt-4">
+                      <label
+                        htmlFor="resume"
+                        className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-gray-300 rounded-xl cursor-pointer bg-white hover:bg-gray-50 hover:border-indigo-500 transition-all group"
+                      >
+                        <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                          <div className="w-12 h-12 bg-indigo-100 group-hover:bg-indigo-200 rounded-full flex items-center justify-center mb-3 transition-all">
+                            <Upload className="w-6 h-6 text-indigo-600" />
+                          </div>
+                          <p className="mb-1 text-sm font-semibold text-gray-700">
+                            Click to upload resume
+                          </p>
+                          <p className="text-xs text-gray-500">
+                            PDF, DOC, DOCX (Max 5MB)
+                          </p>
+                        </div>
+                        <input
+                          id="resume"
+                          type="file"
+                          className="hidden"
+                          onChange={handleFileChange}
+                          accept=".pdf,.doc,.docx"
+                        />
+                      </label>
+
+                      {/* New file selected preview */}
+                      {resume && typeof resume !== "string" && (
+                        <div className="mt-3 flex items-center gap-3 p-3 bg-indigo-50 rounded-lg border border-indigo-200">
+                          <FileText className="w-5 h-5 text-indigo-600 flex-shrink-0" />
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-medium text-gray-900 truncate">
+                              {resume.name}
                             </p>
                             <p className="text-xs text-gray-500">
-                              PDF, DOC, DOCX (Max 5MB)
+                              {(resume.size / 1024 / 1024).toFixed(2)} MB
                             </p>
                           </div>
-                          <input
-                            id="resume"
-                            type="file"
-                            className="hidden"
-                            onChange={handleFileChange}
-                            accept=".pdf,.doc,.docx"
-                          />
-                        </label>
-
-                        {/* New file selected preview */}
-                        {resume && typeof resume !== "string" && (
-                          <div className="mt-3 flex items-center gap-3 p-3 bg-indigo-50 rounded-lg border border-indigo-200">
-                            <FileText className="w-5 h-5 text-indigo-600 flex-shrink-0" />
-                            <div className="flex-1 min-w-0">
-                              <p className="text-sm font-medium text-gray-900 truncate">
-                                {resume.name}
-                              </p>
-                              <p className="text-xs text-gray-500">
-                                {(resume.size / 1024 / 1024).toFixed(2)} MB
-                              </p>
-                            </div>
-                            <button
-                              type="button"
-                              onClick={() => setResume(null)}
-                              className="text-gray-400 hover:text-red-600 transition-colors"
-                            >
-                              <X className="w-5 h-5" />
-                            </button>
-                          </div>
-                        )}
-                      </div>
-                    )}
+                          <button
+                            type="button"
+                            onClick={() => setResume(null)}
+                            className="text-gray-400 hover:text-red-600 transition-colors"
+                          >
+                            <X className="w-5 h-5" />
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
 
                 {/* Action Buttons */}

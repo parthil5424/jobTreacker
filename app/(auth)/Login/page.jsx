@@ -10,6 +10,7 @@ import { signIn } from "next-auth/react";
 import { toast } from "react-toastify";
 
 function Login() {
+  console.log("Login Called");
   const [showPassword, setShowPassword] = useState(false);
   const { login } = useAuthStore();
   const router = useRouter();

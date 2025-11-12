@@ -46,7 +46,6 @@ export default async function middleWare(request) {
   }
 
   if (!token) {
-    console.log("Not Token Called", pathname);
     return NextResponse.redirect(new URL("/Login", request.url));
   }
 

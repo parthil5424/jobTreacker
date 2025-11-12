@@ -3,13 +3,35 @@
 import { useAuthStore } from "@/Store/useAuthStore";
 import { Form, Formik, Field } from "formik";
 import * as yup from "yup";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { X, Upload, Eye, FileText, CheckCircle } from "lucide-react";
+import {
+  LoadScript,
+  GoogleMap,
+  useLoadScript,
+  Marker,
+} from "@react-google-maps/api";
+import { toast } from "react-toastify";
 
 export default function UserProfile({ editData = null, onSuccess }) {
-  console.log("Edit Data", editData);
   const [resume, setResume] = useState(null);
   const { user, updateUser } = useAuthStore();
+  const center = useMemo(
+    () => ({
+      lat: parseFloat(
+        editData?.personalAddress.latitude ??
+          user?.personalAddress?.latitude ??
+          null
+      ),
+      lng: parseFloat(
+        editData?.personalAddress.longitude ??
+          user?.personalAddress?.longitude ??
+          null
+      ),
+    }),
+    [editData, user]
+  );
+  console.log("center", center);
 
   const validationSchema = yup.lazy(() => {
     const isEmployer = user?.companyDetails;
@@ -27,18 +49,11 @@ export default function UserProfile({ editData = null, onSuccess }) {
         : "",
       size: isEmployer ? yup.string().required("Company size is Required") : "",
       landMark: isEmployer ? yup.string().required("landmark is Required") : "",
+      floor: yup.string().required("landmark is Required"),
+      latitude: yup.string().required("landmark is Required"),
+      longitude: yup.string().required("landmark is Required"),
     });
   });
-
-  useEffect(() => {
-    if (user) {
-      if (user.role.name === "Admin" && editData) {
-        setResume(editData?.resume);
-      } else {
-        if (user?.resume) setResume(user.resume);
-      }
-    }
-  }, [user]);
 
   const initialValues = {
     name: editData?.name || user?.name,
@@ -55,7 +70,26 @@ export default function UserProfile({ editData = null, onSuccess }) {
     landMark:
       editData?.companyDetails?.landMark ||
       (user?.companyDetails?.landMark ?? ""),
+    floor: editData?.personalAddress.floor || user?.personalAddress?.floor,
+    latitude:
+      editData?.personalAddress.latitude || user?.personalAddress?.latitude,
+    longitude:
+      editData?.personalAddress.longitude || user?.personalAddress?.longitude,
   };
+
+  useEffect(() => {
+    if (user) {
+      if (user.role.name === "Admin" && editData) {
+        setResume(editData?.resume);
+      } else {
+        if (user?.resume) setResume(user.resume);
+      }
+    }
+  }, [user]);
+
+  const { isLoaded } = useLoadScript({
+    googleMapsApiKey: process.env.GOOGLEMAPSAPIKEY,
+  });
 
   const handleSubmit = async (values) => {
     try {
@@ -74,6 +108,13 @@ export default function UserProfile({ editData = null, onSuccess }) {
       if (resume) {
         formData.append("resume", resume);
       }
+      if (values.floor) {
+        formData.append("floor", values.floor);
+      }
+      if (values.latitude && values.longitude) {
+        formData.append("latitude", values.latitude);
+        formData.append("longitude", values.longitude);
+      }
       let id = user.id;
       if (editData && user.role.name == "Admin") {
         id = editData._id;
@@ -83,16 +124,19 @@ export default function UserProfile({ editData = null, onSuccess }) {
         method: "PUT",
       });
       if (res.status == 200) {
-        console.log("Data Updated SuccessFully");
         if (!editData && user.role.name !== "Admin") {
           const data = await res.json();
           updateUser(data.data);
+          toast.success("Details Updated Successfully");
         }
       } else {
         const data = await res.json();
         console.log("Failed", data.message);
+        toast.error("Something Went Wrong");
       }
     } catch (err) {
+      const msg = err?.message ? err.message : "Failed to Update Details";
+      toast.error(msg);
       console.error("error", err);
     }
   };
@@ -382,12 +426,92 @@ export default function UserProfile({ editData = null, onSuccess }) {
                     </>
                   ) : null}
 
-                  {/* {(editData &&
-                    editData?.roleName !== "Applicant" &&
-                    user.role.name === "Admin") ||
-                    (user.companyDetails && (
-                      
-                    ))} */}
+                  <div className="mb-5">
+                    <label
+                      htmlFor="floor"
+                      className="block text-sm font-medium text-gray-700 mb-2"
+                    >
+                      Floor
+                    </label>
+                    <div className="relative">
+                      <Field
+                        type="text"
+                        id="floor"
+                        name="floor"
+                        className={`w-full pl-10 pr-4 py-3 border ${
+                          errors.floor && touched.floor
+                            ? "border-red-500 focus:ring-red-500"
+                            : "border-gray-300 focus:ring-blue-500"
+                        } rounded-xl focus:ring-2 focus:border-transparent outline-none transition-all`}
+                      />
+                    </div>
+                    {errors.floor && touched.floor && (
+                      <p className="text-red-500 text-sm mt-1.5 ml-1">
+                        {errors.floor}
+                      </p>
+                    )}
+                  </div>
+
+                  {/* {isLoaded && center.lat != null && (
+                    <GoogleMap
+                      mapContainerStyle={{ width: "350px", height: "350px" }}
+                      center={center}
+                      zoom={10}
+                    >
+                      <Marker position={center} />
+                    </GoogleMap>
+                  )} */}
+
+                  <div className="mb-5">
+                    <label
+                      htmlFor="latitude"
+                      className="block text-sm font-medium text-gray-700 mb-2"
+                    >
+                      latitude
+                    </label>
+                    <div className="relative">
+                      <Field
+                        type="text"
+                        id="latitude"
+                        name="latitude"
+                        className={`w-full pl-10 pr-4 py-3 border ${
+                          errors.floor && touched.latitude
+                            ? "border-red-500 focus:ring-red-500"
+                            : "border-gray-300 focus:ring-blue-500"
+                        } rounded-xl focus:ring-2 focus:border-transparent outline-none transition-all`}
+                      />
+                    </div>
+                    {errors.floor && touched.latitude && (
+                      <p className="text-red-500 text-sm mt-1.5 ml-1">
+                        {errors.latitude}
+                      </p>
+                    )}
+                  </div>
+                  <div className="mb-5">
+                    <label
+                      htmlFor="longitude"
+                      className="block text-sm font-medium text-gray-700 mb-2"
+                    >
+                      longitude
+                    </label>
+                    <div className="relative">
+                      <Field
+                        type="text"
+                        id="longitude"
+                        name="longitude"
+                        className={`w-full pl-10 pr-4 py-3 border ${
+                          errors.floor && touched.longitude
+                            ? "border-red-500 focus:ring-red-500"
+                            : "border-gray-300 focus:ring-blue-500"
+                        } rounded-xl focus:ring-2 focus:border-transparent outline-none transition-all`}
+                      />
+                    </div>
+                    {errors.floor && touched.longitude && (
+                      <p className="text-red-500 text-sm mt-1.5 ml-1">
+                        {errors.longitude}
+                      </p>
+                    )}
+                  </div>
                 </div>
                 <div className="flex items-center justify-center gap-x-2 pt-6">
                   <button

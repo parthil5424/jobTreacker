@@ -94,6 +94,9 @@ function UserForm({ onSuccess, onCancel, editData }) {
       landmark: isEmployer
         ? yup.string().required()
         : yup.string().notRequired(),
+      floor: yup.string().required(false),
+      latitude: yup.string().required(false),
+      longitude: yup.string().required(false),
     });
   });
 
@@ -110,6 +113,10 @@ function UserForm({ onSuccess, onCancel, editData }) {
     size: "",
     address: "",
     landmark: "",
+
+    latitude: "",
+    longitude: "",
+    floor: "",
   };
 
   const handleFileChange = (e) => {
@@ -148,6 +155,13 @@ function UserForm({ onSuccess, onCancel, editData }) {
         formData.append("year", values.year);
         formData.append("size", values.size);
         formData.append("landmark", values.landmark);
+      }
+      if (values.floor) {
+        formData.append("floor", values.floor);
+      }
+      if (values.latitude && values.longitude) {
+        formData.append("latitude", values.latitude);
+        formData.append("longitude", values.longitude);
       }
 
       if (resume) {
@@ -514,7 +528,72 @@ function UserForm({ onSuccess, onCancel, editData }) {
                     component="div"
                     className="text-red-500 text-sm mt-1"
                   /> */}
-                  {isLoaded && <GoogleMap />}
+
+                  <div className="mt-6">
+                    <label
+                      htmlFor="floor"
+                      className="block mb-2 text-sm font-medium text-gray-900"
+                    >
+                      Floor / Apartment Name
+                    </label>
+                    <Field
+                      required
+                      as="textarea"
+                      id="floor"
+                      name="floor"
+                      rows="1"
+                      placeholder="123 Business Street, Suite 100"
+                      className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-purple-500 focus:border-purple-500 block w-full p-3"
+                    />
+                    <ErrorMessage
+                      name="floor"
+                      component="div"
+                      className="text-red-500 text-sm mt-1"
+                    />
+                  </div>
+
+                  <div className="mt-6">
+                    <label
+                      htmlFor="latitude"
+                      className="block mb-2 text-sm font-medium text-gray-900"
+                    >
+                      Latitude
+                    </label>
+                    <Field
+                      required
+                      type="text"
+                      id="latitude"
+                      name="latitude"
+                      placeholder="latitude"
+                      className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-purple-500 focus:border-purple-500 block w-full p-3"
+                    />
+                    <ErrorMessage
+                      name="latitude"
+                      component="div"
+                      className="text-red-500 text-sm mt-1"
+                    />
+                  </div>
+                  <div className="mt-6">
+                    <label
+                      htmlFor="latitude"
+                      className="block mb-2 text-sm font-medium text-gray-900"
+                    >
+                      longitude
+                    </label>
+                    <Field
+                      required
+                      type="text"
+                      id="longitude"
+                      name="longitude"
+                      placeholder="longitude"
+                      className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-purple-500 focus:border-purple-500 block w-full p-3"
+                    />
+                    <ErrorMessage
+                      name="longitude"
+                      component="div"
+                      className="text-red-500 text-sm mt-1"
+                    />
+                  </div>
                 </div>
                 {/* Action Buttons */}
                 <div className="flex items-center justify-center gap-x-2 pt-6">

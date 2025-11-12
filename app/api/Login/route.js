@@ -9,7 +9,6 @@ export async function POST(req, { params }) {
   try {
     dbConnect();
     const { email, password, provider } = await req.json();
-
     const isExist = await User.findOne({ email: email });
     if (!isExist) {
       return NextResponse.json(
@@ -46,6 +45,7 @@ export async function POST(req, { params }) {
       resume: isExist.resume,
       companyDetails: isExist?.companyDetails ?? null,
       resume: isExist?.resume ?? null,
+      personalAddress: isExist?.personalAddress ?? null,
     };
 
     const token = jwt.sign(

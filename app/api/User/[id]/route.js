@@ -35,7 +35,7 @@ export async function PUT(req, { params }) {
         fields[key] = value;
       }
     }
-    const { name, email, isActive, role } = fields;
+    const { name, email, isActive, role, floor, latitude, longitude } = fields;
     if (image != undefined && image != null && image != "") {
       const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
       const fileName = `${uniqueSuffix}-${image.name}`;
@@ -59,6 +59,13 @@ export async function PUT(req, { params }) {
         size: data.get("size"),
         address: data.get("address"),
         landMark: data.get("landmark"),
+      };
+    }
+    if (data.get("floor") && data.get("latitude")) {
+      userObj.personalAddress = {
+        floor: data.get("floor"),
+        latitude: data.get("latitude"),
+        longitude: data.get("longitude"),
       };
     }
     let res = await User.findByIdAndUpdate(
