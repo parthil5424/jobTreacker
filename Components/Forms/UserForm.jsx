@@ -7,7 +7,6 @@ import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/Store/useAuthStore";
 import LandingNavbar from "../LandingNavbar";
 import Navbar from "../Navbar";
-import { GoogleMap, useLoadScript } from "@react-google-maps/api";
 function UserForm({ onSuccess, onCancel, editData }) {
   const [coords, setCoords] = useState({
     latitude: "",
@@ -21,9 +20,6 @@ function UserForm({ onSuccess, onCancel, editData }) {
   const router = useRouter();
 
   //Google Maps Load
-  const { isLoaded } = useLoadScript({
-    googleMapsApiKey: "AIzaSyCIcXkNG7D_chQ_T2LCse7_JPbb5083Buw",
-  });
 
   const fectLatitude = useCallback(() => {
     if (navigator.geolocation) {
